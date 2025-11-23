@@ -1,0 +1,53 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "OOTD - Outfit Of The Day API",
+  "dateExported": "2025-11-22T20:00:00.000Z",
+  "version": "1.1",
+  "folders": [],
+  "requests": [
+    {
+      "name": "1. הרשמה",
+      "method": "POST",
+      "url": "http://localhost:5000/api/auth/register",
+      "headers": [{ "key": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mode": "raw",
+        "raw": "{\n  \"name\": \"מוריה\",\n  \"email\": \"moria@test.com\",\n  \"password\": \"123456\"\n}",
+        "options": { "raw": { "language": "json" } }
+      }
+    },
+    {
+      "name": "2. כניסה",
+      "method": "POST",
+      "url": "http://localhost:5000/api/auth/login",
+      "headers": [{ "key": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mode": "raw",
+        "raw": "{\n  \"email\": \"moria@test.com\",\n  \"password\": \"123456\"\n}",
+        "options": { "raw": { "language": "json" } }
+      }
+    },
+    {
+      "name": "3. הוספת בגד (צריך טוקן מהכניסה)",
+      "method": "POST",
+      "url": "http://localhost:5000/api/items/add",
+      "headers": [
+        { "key": "Content-Type", "value": "application/json" },
+        { "key": "Authorization", "value": "Bearer {{TOKEN}}" }
+      ],
+      "body": {
+        "mode": "raw",
+        "raw": "{\n  \"image_url\": \"https://example.com/shirt.jpg\",\n  \"category\": \"חולצה\",\n  \"color\": \"כחול\"\n}",
+        "options": { "raw": { "language": "json" } }
+      }
+    },
+    {
+      "name": "4. כל הבגדים שלי",
+      "method": "GET",
+      "url": "http://localhost:5000/api/items",
+      "headers": [
+        { "key": "Authorization", "value": "Bearer {{TOKEN}}" }
+      ]
+    }
+  ]
+}
