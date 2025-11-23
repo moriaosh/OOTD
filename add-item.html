@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <title>OOTD – הוספת בגד</title>
+    <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+
+    <!-- ======================================================
+         ⭐ באנר עליון – OOTD (תמיד ראשון)
+    ======================================================= -->
+    <header class="ootd-header-bar">
+        <div class="ootd-header-inner">
+            <h1 class="ootd-header-title">OOTD</h1>
+            <p class="ootd-header-subtitle">Outfit Of The Day</p>
+        </div>
+    </header>
+
+    <!-- ======================================================
+         ⭐ אנימציית ארון פתיחה (חייבת להיות אחרי הבאנר!)
+    ======================================================= -->
+    <div id="wardrobe-overlay">
+        <div class="door left-door"></div>
+        <div class="door right-door"></div>
+    </div>
+
+    <!-- ======================================================
+         ⭐ תוכן העמוד — טופס הוספת בגד
+    ======================================================= -->
+    <main class="ootd-container add-item-page">
+
+        <header class="ootd-header">
+            <span class="badge">ניהול ארון</span>
+            <h1 class="ootd-title">הוספת פריט חדש לארון</h1>
+            <p class="ootd-subtitle">
+                העלי תמונה, בחרי קטגוריה וצבע – והארון החכם שלך יתעדכן מיד 🧥👖
+            </p>
+        </header>
+
+        <!-- טופס הוספת בגד -->
+        <form id="add-item-form" enctype="multipart/form-data">
+
+            <!-- שם פריט -->
+            <div class="form-group">
+                <label for="item-name">שם הבגד</label>
+                <input type="text" id="item-name" placeholder="לדוגמה: חולצת כפתורים לבנה" />
+            </div>
+
+            <!-- תמונה -->
+            <div class="form-group">
+                <label for="item-image">תמונה של הבגד</label>
+                <input type="file" id="item-image" accept="image/*" />
+            </div>
+
+            <!-- שורה: קטגוריה + צבע -->
+            <div class="row">
+                <div class="form-group">
+                    <label for="item-category">קטגוריה</label>
+                    <select id="item-category">
+                        <option value="">בחרי קטגוריה</option>
+                        <option value="top">חולצה / טופ</option>
+                        <option value="bottom">מכנס / חצאית</option>
+                        <option value="dress">שמלה</option>
+                        <option value="outerwear">ז'קט / מעיל</option>
+                        <option value="shoes">נעליים</option>
+                        <option value="accessory">אקססוריז</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="item-color">צבע מרכזי</label>
+                    <input type="text" id="item-color" placeholder="לדוגמה: לבן, שחור, כחול רויאל" />
+                </div>
+            </div>
+
+            <!-- שורה: עונה + אירוע -->
+            <div class="row">
+                <div class="form-group">
+                    <label for="item-season">עונה (אופציונלי)</label>
+                    <select id="item-season">
+                        <option value="">בחרי עונה</option>
+                        <option value="summer">קיץ</option>
+                        <option value="winter">חורף</option>
+                        <option value="spring">אביב</option>
+                        <option value="autumn">סתיו</option>
+                        <option value="all">לכל העונות</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="item-occasion">סוג אירוע (אופציונלי)</label>
+                    <select id="item-occasion">
+                        <option value="">יום־יום / שאר</option>
+                        <option value="casual">יומיומי</option>
+                        <option value="work">עבודה</option>
+                        <option value="party">אירוע / מסיבה</option>
+                        <option value="formal">אלגנטי / רשמי</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- הערות -->
+            <div class="form-group">
+                <label for="item-notes">הערות (אופציונלי)</label>
+                <textarea id="item-notes" rows="2"
+                    placeholder="הערות מיוחדות על הבגד, סטייל, תחושה וכו'."></textarea>
+            </div>
+
+            <!-- כפתור שמירה -->
+            <button type="submit" class="btn btn-primary">שמירת הבגד בארון</button>
+
+            <!-- הודעה -->
+            <div class="message"></div>
+
+            <p class="helper-text">
+                בהמשך הטופס יחובר ל־Cloudinary ול־DB<br>
+                העלאת תמונה → שמירת קישור → הצגה בגריד הארון.
+            </p>
+
+        </form>
+
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

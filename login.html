@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <title>OOTD – התחברות</title>
+    <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+
+    <!-- ======================================================
+         ⭐ סטריפ עליון – כותרת האתר
+    ======================================================= -->
+    <header class="ootd-header-bar">
+        <div class="ootd-header-inner">
+            <h1 class="ootd-header-title">OOTD</h1>
+            <p class="ootd-header-subtitle">Outfit Of The Day</p>
+        </div>
+    </header>
+
+    <!-- ======================================================
+         ⭐ אנימציית פתיחת ארון (חייבת להיות אחרי הבאנר)
+    ======================================================= -->
+    <div id="wardrobe-overlay">
+        <div class="door left-door"></div>
+        <div class="door right-door"></div>
+    </div>
+
+    <!-- ======================================================
+         ⭐ תוכן העמוד – טופס התחברות
+    ======================================================= -->
+    <main class="ootd-container login-page">
+
+        <header class="ootd-header">
+            <span class="badge">כניסה למערכת</span>
+            <h1 class="ootd-title">OOTD – Your Wardrobe Manager</h1>
+            <p class="ootd-subtitle">
+                התחברות לארון הדיגיטלי שלך, לבחור לוקים ולהרגיש בשיא בכל יום ✨
+            </p>
+        </header>
+
+        <!-- טופס התחברות -->
+        <form id="login-form">
+
+            <!-- אימייל -->
+            <div class="form-group">
+                <label for="login-email">אימייל</label>
+                <input type="email" id="login-email" placeholder="name@example.com" />
+            </div>
+
+            <!-- סיסמה -->
+            <div class="form-group">
+                <label for="login-password">סיסמה</label>
+                <input type="password" id="login-password" placeholder="••••••••" />
+            </div>
+
+            <!-- כפתור -->
+            <button type="submit" class="btn btn-primary">
+                התחברות
+            </button>
+
+            <!-- הודעות הצלחה/שגיאה -->
+            <div class="message"></div>
+
+            <p class="helper-text">
+                אין לך עדיין משתמש?
+                <a href="register.html">לחצי כאן להרשמה</a>
+            </p>
+
+        </form>
+
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

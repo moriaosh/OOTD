@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <title>OOTD – הרשמה</title>
+    <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+
+    <!-- ======================================================
+         ⭐ סטריפ עליון – כותרת האתר
+    ======================================================= -->
+    <header class="ootd-header-bar">
+        <div class="ootd-header-inner">
+            <h1 class="ootd-header-title">OOTD</h1>
+            <p class="ootd-header-subtitle">Outfit Of The Day</p>
+        </div>
+    </header>
+
+    <!-- ======================================================
+         ⭐ אנימציית פתיחת ארון (מופיעה מעל כל העמוד)
+    ======================================================= -->
+    <div id="wardrobe-overlay">
+        <div class="door left-door"></div>
+        <div class="door right-door"></div>
+    </div>
+
+    <!-- ======================================================
+         ⭐ תוכן העמוד – טופס הרשמה
+    ======================================================= -->
+    <main class="ootd-container register-page">
+
+        <header class="ootd-header">
+            <span class="badge">משתמש חדש</span>
+            <h1 class="ootd-title">הצטרפות ל־OOTD</h1>
+            <p class="ootd-subtitle">
+                כמה פרטים קטנים – ויש לך ארון דיגיטלי חכם שמחכה לך 👗👔
+            </p>
+        </header>
+
+        <!-- טופס הרשמה -->
+        <form id="register-form">
+
+            <!-- שם -->
+            <div class="form-group">
+                <label for="register-name">שם מלא</label>
+                <input type="text" id="register-name" placeholder="שם פרטי ומשפחה" />
+            </div>
+
+            <!-- אימייל -->
+            <div class="form-group">
+                <label for="register-email">אימייל</label>
+                <input type="email" id="register-email" placeholder="name@example.com" />
+            </div>
+
+            <!-- סיסמה -->
+            <div class="form-group">
+                <label for="register-password">סיסמה</label>
+                <input type="password" id="register-password" placeholder="בחרי סיסמה" />
+            </div>
+
+            <!-- אישור סיסמה -->
+            <div class="form-group">
+                <label for="register-confirm-password">אימות סיסמה</label>
+                <input type="password" id="register-confirm-password" placeholder="הקלידי שוב את הסיסמה" />
+            </div>
+
+            <!-- כפתור -->
+            <button type="submit" class="btn btn-primary">
+                יצירת משתמש חדש
+            </button>
+
+            <!-- הודעות הצלחה/שגיאה -->
+            <div class="message"></div>
+
+            <p class="helper-text">
+                כבר יש לך משתמש?
+                <a href="login.html">חזרה להתחברות</a>
+            </p>
+
+        </form>
+
+    </main>
+
+    <script src="js/app.js"></script>
+
+</body>
+</html>

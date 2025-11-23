@@ -1,0 +1,324 @@
+/* ============================================================
+   FONTS – טעינת פונטים יוקרתיים
+============================================================ */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Assistant:wght@300;400;500&display=swap");
+
+
+/* ============================================================
+   RESET בסיסי
+============================================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    direction: rtl;
+}
+
+
+/* ============================================================
+   רקע אינסטגרם רך
+============================================================ */
+body {
+    font-family: "Assistant", sans-serif;
+    background: radial-gradient(circle at 20% 10%, #ffdee9, #ffc3a0, #f9f1ff 90%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+
+/* ============================================================
+   ⭐ HEADER BAR – באנר עליון עם גרדיינט זז + פס זהב
+============================================================ */
+
+.ootd-header-bar {
+    width: 100%;
+    background: #ffffffee;
+    padding: 18px 0 12px;
+    text-align: center;
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+}
+
+/* פס זהב */
+.ootd-header-bar::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #f4d97b, #d7a22a, #f4d97b);
+}
+
+/* כותרת עם גרדיינט זז */
+.ootd-header-title {
+    font-family: "Poppins", sans-serif;
+    font-weight: 800;
+    font-size: 52px;
+    letter-spacing: 2px;
+
+    background: linear-gradient(45deg, #a855f7, #ec4899, #f97316);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    animation: gradientMove 5s ease infinite;
+}
+
+.ootd-header-subtitle {
+    font-size: 16px;
+    color: #444;
+    opacity: 0.85;
+}
+
+/* אנימציית תזוזת הגרדיינט */
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+
+
+/* ============================================================
+   ⭐⭐ WARDROBE – אנימציית הארון (חוזרת במלואה)
+============================================================ */
+
+/* שכבת הארון */
+#wardrobe-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: row-reverse;
+    overflow: hidden;
+    background: #00000090;
+    backdrop-filter: blur(4px);
+}
+
+/* דלתות */
+.door {
+    width: 50%;
+    height: 100%;
+    position: relative;
+
+    background-color: #8b5a2b;
+
+    /* טקסטורת עץ */
+    background-image:
+        repeating-linear-gradient(
+            90deg,
+            rgba(0, 0, 0, 0.22) 0px,
+            rgba(0, 0, 0, 0.22) 2px,
+            rgba(255, 255, 255, 0.06) 2px,
+            rgba(255, 255, 255, 0.06) 18px
+        ),
+        linear-gradient(135deg, #a46a35, #81512b, #a46a35);
+
+    background-size: cover;
+    background-repeat: no-repeat;
+
+    box-shadow:
+        inset 0 0 90px rgba(0,0,0,0.6),
+        inset 0 0 40px rgba(0,0,0,0.45);
+
+    transition: transform 1.4s ease-in-out;
+}
+
+/* קו אמצע */
+.left-door { border-right: 5px solid rgba(255,255,255,0.45); }
+.right-door { border-left: 5px solid rgba(0,0,0,0.5); }
+
+/* ידיות זהב */
+.door::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 20px;
+    height: 95px;
+    transform: translateY(-50%);
+    border-radius: 30px;
+
+    background: linear-gradient(
+        180deg,
+        #fff8d7 0%,
+        #f5d98b 20%,
+        #eac066 40%,
+        #d1a047 60%,
+        #b7842f 80%,
+        #f0d68e 100%
+    );
+
+    box-shadow:
+        inset 0 0 6px rgba(255,255,255,0.7),
+        inset 0 0 4px rgba(0,0,0,0.3),
+        0 0 12px rgba(0,0,0,0.4),
+        0 0 18px rgba(255,215,0,0.4);
+}
+
+/* מיקום ידיות */
+.left-door::before { right: 32px; }
+.right-door::before { left: 32px; }
+
+/* פתיחת הארון */
+#wardrobe-overlay.open .left-door {
+    transform: translateX(-100%);
+    transition: transform 2s ease-in-out;
+}
+
+#wardrobe-overlay.open .right-door {
+    transform: translateX(100%);
+    transition: transform 2s ease-in-out;
+}
+
+/* fade-out */
+#wardrobe-overlay.fade-out {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.8s ease-out, visibility 0s linear 0.8s;
+}
+
+
+
+/* ============================================================
+   ⭐ קוביית התחברות – מרכז מסך
+============================================================ */
+.ootd-container {
+    width: 100%;
+    max-width: 420px;
+    background: #ffffffcc;
+    backdrop-filter: blur(12px);
+    border-radius: 28px;
+    padding: 40px 32px;
+    margin-top: 50px;
+
+    box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+
+    animation: containerFade 0.9s ease forwards;
+    transform: translateY(20px);
+    opacity: 0;
+}
+
+@keyframes containerFade {
+    to { transform: translateY(0); opacity: 1; }
+}
+
+
+
+/* ============================================================
+   ⭐ עיצוב טופס
+============================================================ */
+
+.ootd-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.badge {
+    background: #ffffff;
+    display: inline-block;
+    padding: 6px 20px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    color: #555;
+    margin-bottom: 10px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.05);
+}
+
+.ootd-title {
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: #111;
+}
+
+.ootd-subtitle {
+    font-size: 0.9rem;
+    color: #444;
+}
+
+
+
+/* ===== טפסים ===== */
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+label {
+    font-size: 0.85rem;
+    color: #333;
+    margin-bottom: 6px;
+    display: block;
+}
+
+input {
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 14px;
+    border: 1px solid #ddd;
+    font-size: 0.95rem;
+    transition: 0.25s ease;
+}
+
+input:focus {
+    border-color: #ff7ac6;
+    box-shadow: 0 0 6px rgba(255,105,180,0.35);
+}
+
+
+
+/* ============================================================
+   ⭐ כפתור גרדיינט אינסטגרם
+============================================================ */
+
+.btn {
+    width: 100%;
+    padding: 14px;
+    margin-top: 10px;
+    border-radius: 999px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    color: white;
+    font-size: 1rem;
+
+    background-size: 300% 300%;
+    animation: gradientMove 6s ease infinite;
+}
+
+.btn-primary {
+    background-image: linear-gradient(45deg,
+        #405DE6,
+        #5851DB,
+        #C13584,
+        #E1306C,
+        #FCAF45
+    );
+}
+
+
+
+/* ============================================================
+   טקסט "אין לך משתמש?"
+============================================================ */
+
+.helper-text {
+    text-align: center;
+    margin-top: 14px;
+    color: #444;
+}
+
+.helper-text a {
+    color: #d63384;
+    font-weight: 600;
+}
+
