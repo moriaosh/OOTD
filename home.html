@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <title>OOTD – דף הבית</title>
+    <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+
+    <!-- ⭐ אנימציית פתיחת ארון -->
+    <div id="wardrobe-overlay">
+        <div class="door left-door"></div>
+        <div class="door right-door"></div>
+    </div>
+
+<div class="site-header">
+    <img src="images/OOTD.png" class="header-img">
+</div>
+
+
+<!-- ⭐ סרגל ניווט מתחת לכותרת -->
+<nav class="top-nav">
+    <ul class="nav-links">
+        <li><a href="index.html">דף הבית</a></li>
+        <li><a href="login.html">התחברות</a></li>
+        <li><a href="register.html">הרשמה</a></li>
+        <li><a href="add-item.html">הוספת בגד</a></li>
+        <li><a href="closet.html">הארון שלי</a></li>
+        <li><a href="profile.html">פרופיל אישי</a></li>
+        <li><a href="suggestions.html">המלצות לוקים</a></li>
+    </ul>
+</nav>
+
+<!-- ⭐ ריבוע הקדשה -->
+<main class="home-page">
+    <h2 class="home-intro-title">היי לך! ❤️</h2>
+
+    <p class="home-intro-text">
+        ברוכה הבאה ל־<strong>OOTD</strong>, המקום שבו הארון שלך מקבל חיים חדשים 
+        והסטייל שלך הופך להרבה יותר קל, כיפי ומדויק.
+    </p>
+
+    <p class="home-intro-text">
+        כאן מתחיל המסע שלך לעבר ארון דיגיטלי חכם — כזה שמכיר אותך,
+        יודע מה את אוהבת ומציע לוקים שמתאימים לכל רגע ביום:
+        מהלימודים, לעבודה, לדייט או לאירוע מיוחד 🪩
+    </p>
+
+    <p class="home-intro-text">
+        אז יאללה יפה — בואי נצא לדרך ונבנה ביחד את הארון החכם שלך.
+        הסטייל שלך הולך להיות בלתי־נוצח. 👠✨
+    </p>
+</main>
+
+
+    <script>
+        // פתיחת הארון אוטומטית בדף בית
+        window.onload = () => {
+            const overlay = document.getElementById("wardrobe-overlay");
+            overlay.classList.add("open");
+            setTimeout(() => overlay.classList.add("fade-out"), 2000);
+        };
+    </script>
+
+</body>
+</html>

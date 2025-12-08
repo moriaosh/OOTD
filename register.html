@@ -8,44 +8,48 @@
 
 <body>
 
-    <!-- ======================================================
-         ⭐ סטריפ עליון – כותרת האתר
-    ======================================================= -->
-    <header class="ootd-header-bar">
-        <div class="ootd-header-inner">
-            <h1 class="ootd-header-title">OOTD</h1>
-            <p class="ootd-header-subtitle">Outfit Of The Day</p>
-        </div>
-    </header>
-
-    <!-- ======================================================
-         ⭐ אנימציית פתיחת ארון (מופיעה מעל כל העמוד)
-    ======================================================= -->
+    <!-- ⭐ אנימציית פתיחת ארון -->
     <div id="wardrobe-overlay">
         <div class="door left-door"></div>
         <div class="door right-door"></div>
     </div>
 
-    <!-- ======================================================
-         ⭐ תוכן העמוד – טופס הרשמה
-    ======================================================= -->
-    <main class="ootd-container register-page">
+    <!-- ⭐ תמונת באנר עליון -->
+    <div class="site-header">
+        <img src="images/OOTD.png" class="header-img">
+    </div>
 
-        <header class="ootd-header">
-            <span class="badge">משתמש חדש</span>
-            <h1 class="ootd-title">הצטרפות ל־OOTD</h1>
-            <p class="ootd-subtitle">
-                כמה פרטים קטנים – ויש לך ארון דיגיטלי חכם שמחכה לך 👗👔
-            </p>
-        </header>
+    <!-- ⭐ סרגל ניווט קבוע כמו בדף הבית -->
+    <nav class="top-nav">
+        <ul class="nav-links">
+            <li><a href="home.html">דף הבית</a></li>
+            <li><a href="login.html">התחברות</a></li>
+            <li><a href="register.html">הרשמה</a></li>
+            <li><a href="add-item.html">הוספת בגד</a></li>
+            <li><a href="closet.html">הארון שלי</a></li>
+            <li><a href="profile.html">פרופיל אישי</a></li>
+            <li><a href="suggestions.html">המלצות לוקים</a></li>
+        </ul>
+    </nav>
 
-        <!-- טופס הרשמה -->
+    <!-- ⭐ ריבוע הרשמה -->
+    <main class="login-box register-box">
+
+        <h2 class="login-title">יצירת משתמש חדש</h2>
+
         <form id="register-form">
 
-            <!-- שם -->
-            <div class="form-group">
-                <label for="register-name">שם מלא</label>
-                <input type="text" id="register-name" placeholder="שם פרטי ומשפחה" />
+            <!-- שורה: שם פרטי ומשפחה -->
+            <div class="row">
+                <div class="form-group">
+                    <label for="register-first-name">שם פרטי</label>
+                    <input type="text" id="register-first-name" placeholder="לדוגמה: שירה" />
+                </div>
+
+                <div class="form-group">
+                    <label for="register-last-name">שם משפחה</label>
+                    <input type="text" id="register-last-name" placeholder="לדוגמה: איטח" />
+                </div>
             </div>
 
             <!-- אימייל -->
@@ -66,17 +70,16 @@
                 <input type="password" id="register-confirm-password" placeholder="הקלידי שוב את הסיסמה" />
             </div>
 
-            <!-- כפתור -->
-            <button type="submit" class="btn btn-primary">
+            <!-- כפתור גרדיינט -->
+            <button type="submit" class="login-btn">
                 יצירת משתמש חדש
             </button>
 
-            <!-- הודעות הצלחה/שגיאה -->
             <div class="message"></div>
 
             <p class="helper-text">
                 כבר יש לך משתמש?
-                <a href="login.html">חזרה להתחברות</a>
+                <a href="login.html">מעבר להתחברות</a>
             </p>
 
         </form>
