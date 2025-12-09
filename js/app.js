@@ -17,8 +17,7 @@ window.addEventListener("load", () => {
 });
 
 // =====================================
-// לוגיקה בסיסית לטפסים – צד לקוח בלבד
-// כרגע זה רק מדמה שליחה לשרת / API
+// סימולציית שרת באמצעות LocalStorage
 // =====================================
 
 // פונקציה כללית להצגת הודעה מתאימה לכל טופס
@@ -32,36 +31,10 @@ function showMessage(formElement, type, text) {
     messageBox.style.display = "block";
 }
 
-
-// מחכה שכל ה-HTML ייטען
 document.addEventListener("DOMContentLoaded", function () {
 
     // ----------------------------------
-    // טופס התחברות
-    // ----------------------------------
-    const loginForm = document.getElementById("login-form");
-
-    if (loginForm) {
-        loginForm.addEventListener("submit", function (e) {
-            e.preventDefault();
-
-            const email = loginForm.querySelector("#login-email").value.trim();
-            const password = loginForm.querySelector("#login-password").value.trim();
-
-            if (!email || !password) {
-                showMessage(loginForm, "error", "נא למלא אימייל וסיסמה.");
-                return;
-            }
-
-            console.log("LOGIN → אימייל:", email, "סיסמה:", password);
-
-            showMessage(loginForm, "success", "מעולה! סימולציית התחברות הצליחה (כאן יחובר ה-API שלכם).");
-        });
-    }
-
-
-    // ----------------------------------
-    // טופס רישום
+    // 1. לוגיקה של הרשמה (REGISTER)
     // ----------------------------------
     const registerForm = document.getElementById("register-form");
 
@@ -84,19 +57,71 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            console.log("REGISTER → שם:", name, "אימייל:", email);
+            // שליפת משתמשים קיימים
+            const users = JSON.parse(localStorage.getItem("ootd_users")) || [];
 
-            showMessage(registerForm, "success", "נרשמת בהצלחה (כרגע סימולציה, בהמשך יחובר לשרת ול-DB).");
+            // בדיקה אם האימייל כבר קיים
+            const userExists = users.find(user => user.email === email);
+            if (userExists) {
+                showMessage(registerForm, "error", "האימייל הזה כבר קיים במערכת.");
+                return;
+            }
+
+            // יצירת משתמש חדש ושמירה
+            const newUser = { id: Date.now(), name, email, password };
+            users.push(newUser);
+            localStorage.setItem("ootd_users", JSON.stringify(users));
+
+            showMessage(registerForm, "success", "נרשמת בהצלחה! מעביר להתחברות...");
+            setTimeout(() => { window.location.href = 'login.html'; }, 2000);
         });
     }
 
 
     // ----------------------------------
-    // טופס הוספת בגד
+    // 2. לוגיקה של התחברות (LOGIN)
+    // ----------------------------------
+    const loginForm = document.getElementById("login-form");
+
+    if (loginForm) {
+        loginForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const email = loginForm.querySelector("#login-email").value.trim();
+            const password = loginForm.querySelector("#login-password").value.trim();
+
+            const users = JSON.parse(localStorage.getItem("ootd_users")) || [];
+            
+            // חיפוש המשתמש
+            const user = users.find(u => u.email === email && u.password === password);
+
+            if (user) {
+                // שמירת המשתמש המחובר כרגע
+                localStorage.setItem("ootd_currentUser", JSON.stringify(user));
+                
+                showMessage(loginForm, "success", "התחברת בהצלחה!");
+                setTimeout(() => { window.location.href = 'add-item.html'; }, 1500); // או לדף הבית
+            } else {
+                showMessage(loginForm, "error", "אימייל או סיסמה שגויים.");
+            }
+        });
+    }
+
+
+    // ----------------------------------
+    // 3. טופס הוספת בגד (ADD ITEM)
     // ----------------------------------
     const addItemForm = document.getElementById("add-item-form");
 
     if (addItemForm) {
+        // בדיקה שאכן יש משתמש מחובר
+        const currentUser = JSON.parse(localStorage.getItem("ootd_currentUser"));
+        if (!currentUser) {
+            alert("עליך להתחבר כדי להוסיף בגדים!");
+            window.location.href = "login.html";
+            return;
+        }
+
         addItemForm.addEventListener("submit", function (e) {
             e.preventDefault();
 
@@ -106,24 +131,41 @@ document.addEventListener("DOMContentLoaded", function () {
             const name = addItemForm.querySelector("#item-name").value.trim();
 
             if (!imageInput.files || imageInput.files.length === 0) {
-                showMessage(addItemForm, "error", "נא לבחור תמונה של הבגד.");
+                showMessage(addItemForm, "error", "נא לבחור תמונה.");
                 return;
             }
 
-            if (!category || !color || !name) {
-                showMessage(addItemForm, "error", "נא למלא את כל שדות החובה.");
-                return;
-            }
-
+            // המרה של התמונה ל-Base64 כדי שנוכל לשמור ב-LocalStorage
             const file = imageInput.files[0];
-            console.log(
-                "ADD ITEM → שם:", name,
-                "קטגוריה:", category,
-                "צבע:", color,
-                "קובץ:", file.name
-            );
+            const reader = new FileReader();
 
-            showMessage(addItemForm, "success", "הבגד נוסף בהצלחה (כרגע סימולציה – בהמשך יחובר ל-Cloudinary ול-DB).");
+            reader.onload = function(event) {
+                const imageBase64 = event.target.result; // התמונה כטקסט
+
+                // שליפת פריטים קיימים
+                const items = JSON.parse(localStorage.getItem("ootd_items")) || [];
+
+                const newItem = {
+                    id: Date.now(),
+                    userId: currentUser.id, // משייך את הבגד למשתמש המחובר
+                    name: name,
+                    category: category,
+                    color: color,
+                    image: imageBase64 // שומרים את התמונה עצמה
+                };
+
+                items.push(newItem);
+                localStorage.setItem("ootd_items", JSON.stringify(items));
+
+                console.log("פריט נוסף:", newItem);
+                showMessage(addItemForm, "success", "הבגד נוסף לארון שלך בהצלחה!");
+                
+                // איפוס הטופס
+                addItemForm.reset();
+            };
+
+            // התחלת קריאת הקובץ
+            reader.readAsDataURL(file);
         });
     }
 

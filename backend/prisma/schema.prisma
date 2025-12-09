@@ -1,0 +1,51 @@
+// This is the Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Define the PostgreSQL data source
+datasource db {
+  provider = "postgresql"
+  // זו השורה החיונית לגרסה 6.x: קוראת את משתנה הסביבה
+  url      = env("DATABASE_URL")
+}
+
+// User Model (Tasks 2, 4)
+model User {
+  id        String   @id @default(uuid()) // Use UUID as the primary identifier
+  email     String   @unique
+  password  String   // Hashed password using bcrypt
+  firstName String?
+  lastName  String?
+  // One-to-many relationship: One User owns multiple Clothes
+  clothes   Clothe[]
+  outfits   Outfit[]
+}
+
+// Clothing Item Model (Task 3)
+model Clothe {
+  id          String   @id @default(uuid())
+  userId      String
+  name        String
+  category    String   // e.g., Shirt, Pants, Shoes, Dress
+  color       String   // Main color
+  imageUrl    String   // URL received from Cloudinary
+  createdAt   DateTime @default(now())
+
+  // Relationship: Clothe belongs to a specific User
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+// Outfit Model (for saving favorite looks)
+model Outfit {
+  id          String   @id @default(uuid())
+  userId      String
+  name        String
+  // Array of Clothe IDs that compose the outfit
+  clotheIds   String[]
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+}
