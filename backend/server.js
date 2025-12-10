@@ -13,9 +13,12 @@ app.use(express.json());
 // Routes (חיבור כל הנתיבים)
 const authRoutes = require('./routes/auth');
 const closetRoutes = require('./routes/closet');
+const itemsRoutes = require('./routes/items');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/closet', closetRoutes); // חיבור ה-Route של הוספת הבגד
+app.use('/api/items', itemsRoutes);
+
 
 // הפעלת השרת
 const PORT = process.env.PORT || 5000;
