@@ -29,10 +29,14 @@ model Clothe {
   id          String   @id @default(uuid())
   userId      String
   name        String
-  category    String   // e.g., Shirt, Pants, Shoes, Dress
-  color       String   // Main color
-  imageUrl    String   // URL received from Cloudinary
+  category    String   
+  color       String   
+  imageUrl    String   
   createdAt   DateTime @default(now())
+  season      String? 
+  occasion    String? 
+  notes       String?
+  // ----------------------------------------
 
   // Relationship: Clothe belongs to a specific User
   user        User     @relation(fields: [userId], references: [id])
