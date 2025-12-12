@@ -515,3 +515,413 @@ html, body {
 .register-box {
     padding-bottom: 200px;
 }
+
+/* ============================================================
+   ⭐ דף הארון — מבנה כללי
+============================================================ */
+
+/* ריבוע פתיחה */
+.intro-box {
+    background: #ffe6f2;
+    margin: 250px auto 30px auto; /* ⬅⬅⬅ ירידה משמעותית */
+    padding: 20px 25px;
+    width: 65%;
+    border-radius: 18px;
+    box-shadow: 0 4px 12px rgba(255, 100, 160, 0.15);
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
+
+
+
+.intro-box h2 {
+    margin-bottom: 8px;
+    font-size: 22px;
+}
+
+.intro-box p {
+    margin: 0;
+    font-size: 16px;
+}
+
+/* ⭐ כפתור גרדיינט אינסטגרם בול כמו insta-btn */
+.look-btn {
+    margin-top: 25px;  /* היה קטן — עכשיו ירד מעט */
+    padding: 12px 28px;
+    border: none;
+    border-radius: 25px;
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+
+    background: linear-gradient(45deg,
+        #405DE6,
+        #5851DB,
+        #C13584,
+        #E1306C,
+        #FCAF45
+    );
+    background-size: 300% 300%;
+    animation: gradientMove 6s ease infinite;
+
+    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+    transition: 0.3s ease;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+/* אפקט הובר כמו המקורי */
+.look-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+}
+
+/* אנימציית גרדיאנט */
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+
+/* גריד קטגוריות */
+.category-grid {
+    margin: 40px auto;
+    width: 85%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 35px;
+}
+
+.category-box {
+    display: block;
+    background: #ffffff;
+    padding: 12px;
+    border-radius: 16px;
+    text-align: center;
+    text-decoration: none;
+    color: #444;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    transition: 0.3s;
+}
+
+/* הגדלת התמונות */
+.category-box img {
+    width: 100%;
+    height: 200px;       /* עלה מ-170px */
+    object-fit: cover;
+    border-radius: 14px;
+}
+
+.category-box:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 22px rgba(255, 90, 130, 0.3);
+}
+
+.category-box p {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* רספונסיבי */
+@media (max-width: 900px) {
+    .category-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 550px) {
+    .category-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(3, auto); /* מאפשר צמצום */
+    gap: 40px; /* רווח קטנטן בין ריבועים */
+    justify-content: center; /* ממורכז לאמצע */
+    align-items: center;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.category-box {
+    width: 250px; /* מצמצם את הריבוע */
+    padding: 10px;
+    background: white;
+    border-radius: 14px;
+    text-align: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.07);
+}
+.category-box img {
+    width: 110%;
+    height: 150px;
+    object-fit: contain;
+}
+
+
+
+/* ----------------------------------------------------------
+   🎀 מכולת הפרופיל – מרכזת את כל הדף ויוצרת רווחים מלמעלה
+----------------------------------------------------------- */
+.profile-container {
+    text-align: center;
+    padding-top: 180px; /* ריחוק מלמעלה */
+}
+
+/* ----------------------------------------------------------
+   🎀 כותרת הדף
+----------------------------------------------------------- */
+.profile-title {
+    font-size: 30px;
+    font-weight: 800;
+    margin-bottom: 25px;
+}
+
+/* ----------------------------------------------------------
+   🎀 כרטיס פרופיל – תלת־מימד, זוהר, שקיפות
+----------------------------------------------------------- */
+.profile-card {
+    background: rgba(255,255,255,0.88);
+    width: 520px;
+    min-height: 590px;
+    margin: 60px auto 0;
+    padding: 45px 35px;
+    border-radius: 30px;
+
+    /* אפקט זכוכית + תלת־מימד */
+    backdrop-filter: blur(6px);
+
+    box-shadow:
+        0 15px 30px rgba(0,0,0,0.25),      /* צל עמוק מתחת */
+        0 0 25px rgba(255,120,180,0.35);   /* זוהר ורדרד */
+    
+    border: 1px solid rgba(255,180,210,0.35);
+    transition: 0.3s ease;
+}
+
+/* אפקט ריחוף */
+.profile-card:hover {
+    transform: translateY(-6px);
+    box-shadow:
+        0 22px 45px rgba(0,0,0,0.30),
+        0 0 40px rgba(255,140,200,0.45);
+}
+
+/* ----------------------------------------------------------
+   🎀 תמונת פרופיל (עם תמונת ברירת מחדל)
+----------------------------------------------------------- */
+.profile-image-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.profile-image-box img {
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #ff90b0;
+
+    box-shadow:
+        0 0 18px rgba(255,130,170,0.4),
+        inset 0 0 10px rgba(255,150,190,0.3);
+}
+
+
+/* ----------------------------------------------------------
+   🎀 כפתור עדכון תמונה
+----------------------------------------------------------- */
+.edit-image-btn {
+    margin-top: 15px;
+    background: linear-gradient(45deg,#405DE6,#5851DB,#C13584,#E1306C,#FCAF45);
+    background-size: 300% 300%;
+    animation: gradientMove 6s ease infinite;
+    color: white;
+    padding: 12px 28px;
+    border-radius: 28px;
+    cursor: pointer;
+    font-size: 18px;
+    border: none;
+}
+
+.edit-image-btn input {
+    display: none;
+}
+
+/* ----------------------------------------------------------
+   🎀 פרטי המשתמש
+----------------------------------------------------------- */
+.profile-details p {
+    font-size: 19px;
+    margin: 8px 0;
+    line-height: 1.6;
+}
+
+/* ----------------------------------------------------------
+   🎀 כפתור עריכת פרופיל
+----------------------------------------------------------- */
+.edit-profile-btn {
+    margin-top: 28px;
+    background: linear-gradient(45deg,#405DE6,#5851DB,#C13584,#E1306C,#FCAF45);
+    background-size: 300% 300%;
+    animation: gradientMove 6s ease infinite;
+    color: white;
+    padding: 14px 32px;
+    border-radius: 28px;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+/* אנימציית הגרדיאנט */
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+
+/* ===============================
+   🪟 Modal – רקע כהה + טשטוש
+================================ */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+/* ===============================
+   🪟 תיבת העריכה
+================================ */
+.modal-box {
+    background: #fff;
+    width: 520px;              /* ⬅️ קצת יותר רחב */
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 40px 35px;
+    border-radius: 32px;
+
+    box-shadow:
+        0 20px 40px rgba(0,0,0,0.25),
+        0 0 30px rgba(255,140,200,0.35);
+
+    animation: popIn 0.35s ease;
+}
+
+/* אנימציית פתיחה */
+@keyframes popIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.modal-box h3 {
+    margin-bottom: 25px;
+    font-size: 24px;
+    font-weight: 800;
+    text-align: center;
+}
+
+/* ===============================
+   📝 טופס – איפוס מלא + עמודה
+================================ */
+.edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* 🔥 איפוס שמונע שורות דחוסות */
+.edit-form label,
+.edit-form input {
+    display: block;
+    width: 100%;
+    float: none;
+    clear: both;
+    box-sizing: border-box;
+}
+
+/* תווית */
+.edit-form label {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 6px;
+    text-align: right;
+}
+
+/* שדה קלט */
+.edit-form input {
+    padding: 14px;
+    border-radius: 16px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+}
+
+/* פוקוס */
+.edit-form input:focus {
+    outline: none;
+    border-color: #ff8fb6;
+    box-shadow: 0 0 0 2px rgba(255,143,182,0.25);
+}
+
+/* ===============================
+   🎀 כפתורים
+================================ */
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    margin-top: 30px;
+}
+
+/* ביטול */
+.close-btn {
+    flex: 1;
+    background: #eee;
+    border: none;
+    padding: 14px;
+    border-radius: 22px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* שמירה */
+.save-btn {
+    flex: 1;
+    background: linear-gradient(45deg,#405DE6,#5851DB,#C13584,#E1306C,#FCAF45);
+    background-size: 300% 300%;
+    animation: gradientMove 6s ease infinite;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 22px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* גרדיאנט */
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}

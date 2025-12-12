@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <title>OOTD – פרופיל אישי</title>
+    <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+
+<!-- כותרת -->
+<div class="site-header">
+    <img src="images/OOTD.png" class="header-img">
+</div>
+
+  <!-- ⭐ סרגל ניווט -->
+    <nav class="top-nav">
+        <ul class="nav-links">
+            <li><a href="home.html">דף הבית</a></li>
+            <li><a href="login.html">התחברות</a></li>
+            <li><a href="register.html">הרשמה</a></li>
+            <li><a href="add-item.html">הוספת בגד</a></li>
+            <li><a class="active" href="closet.html">הארון שלי</a></li>
+            <li><a href="profile.html">פרופיל אישי</a></li>
+            <li><a href="suggestions.html">המלצות לוקים</a></li>
+        </ul>
+    </nav>
+    
+<!-- =====================
+     כרטיס פרופיל
+===================== -->
+<main class="profile-container">
+
+    <div class="profile-card">
+
+        <!-- תמונת פרופיל -->
+        <div class="profile-image-box">
+            <img id="profile-image" src="images/default-profile.png" alt="תמונת פרופיל">
+
+            <label class="edit-image-btn">
+                📸 עדכון תמונה
+                <input type="file" id="image-upload" accept="image/*">
+            </label>
+        </div>
+
+        <!-- פרטים מוצגים -->
+        <div class="profile-details">
+            <p><strong>שם מלא:</strong> <span id="nameText">שירה ישראלי</span></p>
+            <p><strong>אימייל:</strong> <span id="emailText">shira@example.com</span></p>
+            <p><strong>טלפון:</strong> <span id="phoneText">052-1234567</span></p>
+            <p><strong>עיר מגורים:</strong> <span id="cityText">ירושלים</span></p>
+            <p><strong>סגנון לבוש:</strong> <span id="styleText">קלאסי / אלגנטי</span></p>
+            <p><strong>צבע שיער:</strong> <span id="hairText">חום בהיר</span></p>
+            <p><strong>צבע עיניים:</strong> <span id="eyesText">ירוק</span></p>
+            <p><strong>צבע לבוש מועדף:</strong> <span id="colorText">פסטלי / ניוד</span></p>
+        </div>
+
+        <button class="edit-profile-btn" id="openEdit">✏️ עריכת פרופיל</button>
+
+    </div>
+</main>
+
+<!-- =====================
+     חלון עריכה (Modal)
+===================== -->
+<div id="editModal" class="modal-overlay">
+
+    <div class="modal-box">
+        <h3>✏️ עריכת פרטים אישיים</h3>
+
+        <form id="editForm" class="edit-form">
+
+            <div class="form-group">
+                <label>שם מלא</label>
+                <input type="text" id="nameInput">
+            </div>
+
+            <div class="form-group">
+                <label>אימייל</label>
+                <input type="email" id="emailInput">
+            </div>
+
+            <div class="form-group">
+                <label>טלפון</label>
+                <input type="text" id="phoneInput">
+            </div>
+
+            <div class="form-group">
+                <label>עיר מגורים</label>
+                <input type="text" id="cityInput">
+            </div>
+
+            <div class="form-group">
+                <label>סגנון לבוש</label>
+                <input type="text" id="styleInput">
+            </div>
+
+            <div class="form-group">
+                <label>צבע שיער</label>
+                <input type="text" id="hairInput">
+            </div>
+
+            <div class="form-group">
+                <label>צבע עיניים</label>
+                <input type="text" id="eyesInput">
+            </div>
+
+            <div class="form-group">
+                <label>צבע לבוש מועדף</label>
+                <input type="text" id="colorInput">
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="close-btn" id="closeModal">ביטול</button>
+                <button type="submit" class="save-btn">שמירה 💖</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- =====================
+     JavaScript
+===================== -->
+<script>
+/* ---------- תמונת פרופיל ---------- */
+document.getElementById("image-upload").addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (file) {
+        document.getElementById("profile-image").src = URL.createObjectURL(file);
+    }
+});
+
+/* ---------- פתיחה / סגירה ---------- */
+const modal = document.getElementById("editModal");
+
+openEdit.onclick = () => {
+    nameInput.value  = nameText.textContent;
+    emailInput.value = emailText.textContent;
+    phoneInput.value = phoneText.textContent;
+    cityInput.value  = cityText.textContent;
+    styleInput.value = styleText.textContent;
+    hairInput.value  = hairText.textContent;
+    eyesInput.value  = eyesText.textContent;
+    colorInput.value = colorText.textContent;
+
+    modal.style.display = "flex";
+};
+
+closeModal.onclick = () => {
+    modal.style.display = "none";
+};
+
+/* ---------- שמירה ---------- */
+editForm.addEventListener("submit", e => {
+    e.preventDefault();
+
+    nameText.textContent  = nameInput.value;
+    emailText.textContent = emailInput.value;
+    phoneText.textContent = phoneInput.value;
+    cityText.textContent  = cityInput.value;
+    styleText.textContent = styleInput.value;
+    hairText.textContent  = hairInput.value;
+    eyesText.textContent  = eyesInput.value;
+    colorText.textContent = colorInput.value;
+
+    modal.style.display = "none";
+});
+</script>
+
+</body>
+</html>
