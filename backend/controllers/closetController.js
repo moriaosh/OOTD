@@ -33,9 +33,22 @@ const getMyItems = async (req, res) => {
         const clothes = await prisma.clothe.findMany({
             where: { userId }, 
             orderBy: { createdAt: 'desc' },
+            include: {
+                tags: {
+                    include: {
+                        tag: true
+                    }
+                }
+            }
         });
 
-        res.status(200).json(clothes);
+        // Transform the data to include tags as an array
+        const clothesWithTags = clothes.map(clothe => ({
+            ...clothe,
+            tags: clothe.tags.map(ct => ct.tag)
+        }));
+
+        res.status(200).json(clothesWithTags);
 
     } catch (error) {
         console.error('Error fetching closet items:', error);
@@ -95,7 +108,7 @@ const generateOutfitSuggestions = async (req, res) => {
 const addItemLogic = async (req, res) => {
     const userId = req.user.id; 
     // קבלת שדות מלאים כולל שדות חדשים מהטופס
-    const { name, category, color, season, occasion, notes } = req.body; 
+    const { name, category, color, season, occasion, notes, tagIds } = req.body; 
 
     if (!req.file) {
       return res.status(400).json({ message: 'יש לבחור קובץ תמונה להעלאה.' });
@@ -118,7 +131,21 @@ const addItemLogic = async (req, res) => {
 
         imageUrl = cloudinaryResponse.secure_url; 
 
-        // 3. Task 12: Save item to PostgreSQL via Prisma
+        // Parse tagIds if provided (can be string or array)
+        let parsedTagIds = [];
+        if (tagIds) {
+            if (typeof tagIds === 'string') {
+                try {
+                    parsedTagIds = JSON.parse(tagIds);
+                } catch {
+                    parsedTagIds = tagIds.split(',').filter(id => id.trim());
+                }
+            } else if (Array.isArray(tagIds)) {
+                parsedTagIds = tagIds;
+            }
+        }
+
+        // 3. Task 12: Save item to PostgreSQL via Prisma with tags
         const newItem = await prisma.clothe.create({
             data: {
                 userId,
@@ -129,10 +156,28 @@ const addItemLogic = async (req, res) => {
                 season: season || null, 
                 occasion: occasion || null, 
                 notes: notes || null,
+                tags: parsedTagIds.length > 0 ? {
+                    create: parsedTagIds.map(tagId => ({
+                        tagId: tagId
+                    }))
+                } : undefined
             },
+            include: {
+                tags: {
+                    include: {
+                        tag: true
+                    }
+                }
+            }
         });
 
-        res.status(201).json({ message: 'הבגד הועלה ונשמר בהצלחה!', item: newItem });
+        // Transform to include tags as array
+        const itemWithTags = {
+            ...newItem,
+            tags: newItem.tags.map(ct => ct.tag)
+        };
+
+        res.status(201).json({ message: 'הבגד הועלה ונשמר בהצלחה!', item: itemWithTags });
     } catch (error) {
         console.error('CLOUDINARY UPLOAD ERROR:', error);
         res.status(500).json({ message: 'שגיאה בהעלאת הפריט.', error: error.message });

@@ -22,6 +22,7 @@ model User {
   // One-to-many relationship: One User owns multiple Clothes
   clothes   Clothe[]
   outfits   Outfit[]
+  tags      Tag[]    // User's custom tags
 }
 
 // Clothing Item Model (Task 3)
@@ -40,6 +41,32 @@ model Clothe {
 
   // Relationship: Clothe belongs to a specific User
   user        User     @relation(fields: [userId], references: [id])
+  // Many-to-many relationship: Clothe can have multiple Tags
+  tags        ClotheTag[]
+}
+
+// Tag Model - for organizing clothes
+model Tag {
+  id          String   @id @default(uuid())
+  name        String
+  userId      String?  // null = system tag, userId = user's custom tag
+  createdAt   DateTime @default(now())
+  
+  // Relationships
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clothes     ClotheTag[]
+}
+
+// Junction table for many-to-many relationship between Clothe and Tag
+model ClotheTag {
+  id        String   @id @default(uuid())
+  clotheId  String
+  tagId     String
+  
+  clothe    Clothe   @relation(fields: [clotheId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  
+  @@unique([clotheId, tagId]) // Prevent duplicate tag assignments
 }
 
 // Outfit Model (for saving favorite looks)

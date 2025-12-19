@@ -1,33 +1,27 @@
 /* ============================================================
    FONTS – טעינת פונטים יוקרתיים
 ============================================================ */
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Assistant:wght@300;400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Assistant:wght@300;400;500&family=Playfair+Display:wght@700&display=swap");
 
-/* ============================================================
-   RESET בסיסי
-============================================================ */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-html, body {
-    height: 100%;
-    direction: rtl;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* אנימציית הגרדיאנט המיוחדת שלך */
+@keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
-/* ============================================================
-   רקע אינסטגרם רך לכל האתר
-============================================================ */
+/* הגדרות בסיס */
 body {
+    direction: rtl;
     font-family: "Assistant", sans-serif;
+    /* הרקע הכללי של האתר */
     background: radial-gradient(circle at 20% 10%, #ffdee9, #ffc3a0, #f9f1ff 90%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 180px;  /* ⭐ כדי שהתוכן לא ייכנס מתחת לכותרת+סרגל */
+    background-attachment: fixed; /* שלא יזוז בגלילה */
 }
-
 /* ============================================================
    ⭐ כותרת עליונה עם תמונת רקע
 ============================================================ */
@@ -94,7 +88,7 @@ body {
     padding: 18px 0;
 
     position: fixed;
-    top: 300px;                /* ⬅⬅⬅ ירד עוד 50px למטה */
+    top: 200px;                /* ⬅⬅⬅ ירד עוד 50px למטה */
     left: 0;
     z-index: 7000;
 

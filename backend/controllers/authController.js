@@ -11,8 +11,8 @@ const SALT_ROUNDS = 10; // מספר סבבי הגיבוב עבור הסיסמה
 
 // --- הרשמת משתמש חדש (Register) ---
 const register = async (req, res) => {
-    // השדות הנדרשים כרגע: email ו-password (אפשר להוסיף firstName, lastName)
-    const { email, password } = req.body;
+    // השדות הנדרשים: email ו-password (firstName, lastName אופציונליים)
+    const { email, password, firstName, lastName } = req.body;
 
     // ודא שכל השדות קיימים
     if (!email || !password) {
@@ -37,12 +37,15 @@ const register = async (req, res) => {
             data: {
                 email: email,
                 password: hashedPassword, // שמירת הסיסמה המגובבת
-                // ניתן להוסיף כאן firstName ו-lastName
+                firstName: firstName || null,
+                lastName: lastName || null,
             },
             // לא מחזירים את שדה הסיסמה ל-Frontend מטעמי אבטחה
             select: {
                 id: true,
                 email: true,
+                firstName: true,
+                lastName: true,
             }
         });
 
@@ -52,7 +55,7 @@ const register = async (req, res) => {
         res.status(201).json({ 
             message: 'הרשמה בוצעה בהצלחה!',
             token: token,
-            user: { id: newUser.id, email: newUser.email }
+            user: { id: newUser.id, email: newUser.email, firstName: newUser.firstName, lastName: newUser.lastName }
         });
 
     } catch (error) {
@@ -73,6 +76,13 @@ const login = async (req, res) => {
         // 1. מציאת המשתמש לפי אימייל (Prisma: findUnique)
         const user = await prisma.user.findUnique({
             where: { email: email },
+            select: {
+                id: true,
+                email: true,
+                password: true,
+                firstName: true,
+                lastName: true,
+            }
         });
 
         if (!user) {
@@ -93,7 +103,12 @@ const login = async (req, res) => {
         res.status(200).json({
             message: 'כניסה בוצעה בהצלחה!',
             token: token,
-            user: { id: user.id, email: user.email }
+            user: { 
+                id: user.id, 
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName
+            }
         });
 
     } catch (error) {
