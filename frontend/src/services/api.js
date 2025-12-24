@@ -171,3 +171,36 @@ export const tagsAPI = {
   },
 };
 
+// Posts API
+export const postsAPI = {
+  createPost: async (formData) => {
+    return fetchWithAuth('/posts', {
+      method: 'POST',
+      body: formData, // FormData with image
+    });
+  },
+
+  getFeed: async () => {
+    // Public feed doesn't require authentication
+    const response = await fetch(`${API_BASE_URL}/posts/feed`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'שגיאה בשליפת הפיד' }));
+      throw new Error(errorData.message || 'שגיאה בשליפת הפיד');
+    }
+
+    return response.json();
+  },
+
+  getMyPosts: async () => {
+    return fetchWithAuth('/posts/my-posts', {
+      method: 'GET',
+    });
+  },
+};
+

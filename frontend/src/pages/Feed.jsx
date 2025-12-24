@@ -1,49 +1,39 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Loader2, AlertCircle, Image as ImageIcon } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { Loader2, AlertCircle, Image as ImageIcon, Lock, Globe } from 'lucide-react';
 import { postsAPI } from '../services/api';
 import Layout from '../components/Layout';
-import WardrobeOverlay from '../components/WardrobeOverlay';
 import CreatePost from '../components/CreatePost';
 
-const Home = () => {
-  const { isAuthenticated } = useAuth();
+const Feed = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  const fetchFeed = async () => {
+  const fetchMyPosts = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await postsAPI.getFeed();
+      const data = await postsAPI.getMyPosts();
       setPosts(data);
     } catch (err) {
-      console.error('Error fetching feed:', err);
-      setError(err.message || 'שגיאה בשליפת הפיד');
+      console.error('Error fetching my posts:', err);
+      setError(err.message || 'שגיאה בשליפת הפרסומים שלך');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchFeed();
-    } else {
-      setLoading(false);
-    }
-  }, [isAuthenticated]);
+    fetchMyPosts();
+  }, []);
 
   const handlePostCreated = (newPost) => {
-    // If the new post is public, add it to the feed
-    if (newPost.isPublic) {
-      setPosts((prevPosts) => [newPost, ...prevPosts]);
-    }
+    // Add the new post to the personal feed (both public and private)
+    setPosts((prevPosts) => [newPost, ...prevPosts]);
     // Refresh feed to ensure consistency
     setTimeout(() => {
-      fetchFeed();
+      fetchMyPosts();
     }, 500);
   };
 
@@ -83,53 +73,12 @@ const Home = () => {
     }
   };
 
-  // Show welcome page for non-authenticated users
-  if (!isAuthenticated) {
-    return (
-      <>
-        <WardrobeOverlay />
-        <Layout>
-          <main className="home-page">
-            <h2 className="home-intro-title">היי לך! ❤️</h2>
-
-            <p className="home-intro-text">
-              ברוכה הבאה ל־<strong>OOTD</strong>, המקום שבו הארון שלך מקבל חיים חדשים
-              והסטייל שלך הופך להרבה יותר קל, כיפי ומדויק.
-            </p>
-
-            <p className="home-intro-text">
-              כאן מתחיל המסע שלך לעבר ארון דיגיטלי חכם — כזה שמכיר אותך,
-              יודע מה את אוהבת ומציע לוקים שמתאימים לכל רגע ביום:
-              מהלימודים, לעבודה, לדייט או לאירוע מיוחד 🪩
-            </p>
-
-            <p className="home-intro-text">
-              אז יאללה יפה — בואי נצא לדרך ונבנה ביחד את הארון החכם שלך.
-              הסטייל שלך הולך להיות בלתי־נוצח. 👠✨
-            </p>
-
-            <div style={{ textAlign: 'center', marginTop: '30px' }}>
-              <Link
-                to="/register"
-                className="login-btn"
-                style={{ display: 'inline-block', textDecoration: 'none', width: 'auto', padding: '14px 40px' }}
-              >
-                התחילי עכשיו
-              </Link>
-            </div>
-          </main>
-        </Layout>
-      </>
-    );
-  }
-
-  // Show public feed for authenticated users
   return (
     <Layout>
       <div className="feed-container" dir="rtl">
         {/* Header */}
         <header className="feed-header">
-          <h1 className="feed-title">פיד ציבורי</h1>
+          <h1 className="feed-title">הפרסומים שלי</h1>
           <button
             onClick={() => setIsCreateModalOpen(true)}
             className="create-post-btn"
@@ -142,7 +91,7 @@ const Home = () => {
         {loading && (
           <div className="flex items-center justify-center p-12">
             <Loader2 className="w-8 h-8 animate-spin text-indigo-500 ml-3" />
-            <span className="text-lg text-gray-700">טוען פיד...</span>
+            <span className="text-lg text-gray-700">טוען פרסומים...</span>
           </div>
         )}
 
@@ -152,7 +101,7 @@ const Home = () => {
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
             <p className="text-red-700 font-semibold mb-2">{error}</p>
             <button
-              onClick={fetchFeed}
+              onClick={fetchMyPosts}
               className="text-sm text-red-600 underline hover:text-red-800"
             >
               נסה שוב
@@ -165,10 +114,10 @@ const Home = () => {
           <div className="text-center p-12 bg-white rounded-xl shadow-lg border border-gray-200">
             <ImageIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <p className="text-xl font-semibold text-gray-600 mb-2">
-              עדיין אין פרסומים בפיד
+              עדיין אין לך פרסומים
             </p>
             <p className="text-gray-500 mb-6">
-              תהיי הראשונה לשתף את הלוק שלך!
+              צרי את הפרסום הראשון שלך!
             </p>
             <button
               onClick={() => setIsCreateModalOpen(true)}
@@ -193,6 +142,20 @@ const Home = () => {
                       e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect fill="%23e5e7eb" width="400" height="400"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="18" fill="%239ca3af"%3Eתמונה לא זמינה%3C/text%3E%3C/svg%3E';
                     }}
                   />
+                  {/* Privacy indicator */}
+                  <div className="absolute top-2 left-2">
+                    {post.isPublic ? (
+                      <div className="bg-green-500 text-white px-2 py-1 rounded-full text-xs flex items-center gap-1">
+                        <Globe className="w-3 h-3" />
+                        ציבורי
+                      </div>
+                    ) : (
+                      <div className="bg-gray-600 text-white px-2 py-1 rounded-full text-xs flex items-center gap-1">
+                        <Lock className="w-3 h-3" />
+                        פרטי
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="feed-card-content">
                   <p className="feed-card-caption">{post.caption}</p>
@@ -221,5 +184,5 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Feed;
 

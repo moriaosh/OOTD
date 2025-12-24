@@ -68,3 +68,4 @@ The backend can still use HTTPS separately if needed.
 - Development HTTPS is optional but recommended for testing
 - The proxy will still forward API calls to the backend (even if backend uses HTTP)
 
+

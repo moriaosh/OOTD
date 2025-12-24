@@ -17,11 +17,27 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Check if user is logged in on mount
-    const currentUser = authAPI.getCurrentUser();
-    if (currentUser && authAPI.isAuthenticated()) {
-      setUser(currentUser);
-    }
-    setLoading(false);
+    const checkAuth = () => {
+      const token = authAPI.isAuthenticated();
+      const currentUser = authAPI.getCurrentUser();
+      
+      if (token && currentUser) {
+        setUser(currentUser);
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    };
+    
+    checkAuth();
+    
+    // Also listen for storage changes (in case of multiple tabs)
+    const handleStorageChange = () => {
+      checkAuth();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   const login = async (email, password) => {
@@ -62,13 +78,21 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  // Compute isAuthenticated based on both state and localStorage check
+  // This ensures it's accurate even during page transitions
+  const isAuthenticated = React.useMemo(() => {
+    const hasToken = authAPI.isAuthenticated();
+    const hasUser = !!user || !!authAPI.getCurrentUser();
+    return hasToken && hasUser;
+  }, [user]);
+
   const value = {
     user,
     loading,
     login,
     register,
     logout,
-    isAuthenticated: !!user && authAPI.isAuthenticated(),
+    isAuthenticated,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

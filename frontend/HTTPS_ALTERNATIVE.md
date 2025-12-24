@@ -25,3 +25,4 @@ Since mkcert installation can be tricky, here are simpler alternatives:
 ## Current Setup
 The app is now configured to use HTTP by default, which is perfectly fine for development. When you deploy to production, your hosting provider will handle HTTPS automatically.
 
+

@@ -15,6 +15,13 @@ const Navbar = () => {
               דף הבית
             </Link>
           </li>
+          {isAuthenticated && (
+            <li>
+              <Link to="/feed" className={isActive('/feed') ? 'active' : ''}>
+                הפרסומים שלי
+              </Link>
+            </li>
+          )}
           {!isAuthenticated ? (
             <>
               <li>

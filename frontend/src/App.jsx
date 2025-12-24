@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import Closet from './pages/Closet';
 import Suggestions from './pages/Suggestions';
 import Profile from './pages/Profile';
+import Feed from './pages/Feed';
 
 function App() {
   return (
@@ -40,6 +41,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/feed"
+            element={
+              <ProtectedRoute>
+                <Feed />
+              </ProtectedRoute>
+            }
+          />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
@@ -48,4 +57,5 @@ function App() {
 }
 
 export default App;
+
 

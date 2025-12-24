@@ -23,9 +23,9 @@ const Login = () => {
       console.log('🟢 Token saved:', !!localStorage.getItem('ootd_authToken'));
       console.log('🟢 User saved:', !!localStorage.getItem('ootd_currentUser'));
       
-      // Force navigation
-      console.log('🟢 Attempting navigation to /closet...');
-      window.location.href = '/closet';
+      // Force navigation to home page (which shows public feed when logged in)
+      console.log('🟢 Attempting navigation to home page...');
+      window.location.href = '/';
     } catch (err) {
       console.error('🔴 Login error:', err);
       setError(err.message || 'שגיאה בהתחברות');

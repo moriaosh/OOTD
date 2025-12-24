@@ -95,3 +95,4 @@ The frontend integrates with the backend API at `http://localhost:5000/api`:
 - Lucide React (icons)
 - Fetch API for HTTP requests
 
+

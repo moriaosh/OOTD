@@ -24,10 +24,12 @@ app.use(express.json());
 const authRoutes = require('./routes/auth');
 const closetRoutes = require('./routes/closet');
 const tagRoutes = require('./routes/tags');
+const postRoutes = require('./routes/posts');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/closet', closetRoutes); // זה יטפל ב-add-item, my-items, suggestions
 app.use('/api/tags', tagRoutes); // זה יטפל ב-tags CRUD
+app.use('/api/posts', postRoutes); // זה יטפל ב-posts CRUD
 
 // ודאי שאין כאן שורות כמו: const itemsRoutes = require('./routes/items');
 

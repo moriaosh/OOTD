@@ -124,8 +124,8 @@ const UploadModal = ({ isOpen, onClose, onUploadSuccess }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4" style={{ zIndex: 10000, paddingTop: '220px' }}>
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md max-h-[calc(90vh-220px)] overflow-y-auto">
         <div className="flex justify-between items-center p-5 border-b border-gray-200" dir="rtl">
           <h2 className="text-2xl font-bold text-gray-800">העלאת פריט חדש</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-800 transition">

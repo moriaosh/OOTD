@@ -52,7 +52,7 @@ const Profile = () => {
         </div>
 
         {showLogoutConfirm && (
-          <div className="modal-overlay" style={{ display: 'flex' }}>
+          <div className="modal-overlay" style={{ display: 'flex', zIndex: 10000 }}>
             <div className="modal-box" dir="rtl">
               <h3 className="modal-title">התנתקות</h3>
               <p className="modal-text">האם את בטוחה שברצונך להתנתק?</p>

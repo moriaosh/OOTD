@@ -83,8 +83,8 @@ const TagManager = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
+    <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4" style={{ zIndex: 10000, paddingTop: '220px' }}>
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[calc(90vh-220px)] overflow-y-auto" dir="rtl">
         <div className="flex justify-between items-center p-5 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
             <TagIcon className="w-6 h-6" />
@@ -204,4 +204,5 @@ const TagManager = ({ isOpen, onClose }) => {
 };
 
 export default TagManager;
+
 

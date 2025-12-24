@@ -16,67 +16,80 @@ datasource db {
 model User {
   id        String   @id @default(uuid()) // Use UUID as the primary identifier
   email     String   @unique
-  password  String   // Hashed password using bcrypt
+  password  String // Hashed password using bcrypt
   firstName String?
   lastName  String?
   // One-to-many relationship: One User owns multiple Clothes
   clothes   Clothe[]
   outfits   Outfit[]
-  tags      Tag[]    // User's custom tags
+  tags      Tag[] // User's custom tags
+  posts     Post[] // User's social feed posts
 }
 
 // Clothing Item Model (Task 3)
 model Clothe {
-  id          String   @id @default(uuid())
-  userId      String
-  name        String
-  category    String   
-  color       String   
-  imageUrl    String   
-  createdAt   DateTime @default(now())
-  season      String? 
-  occasion    String? 
-  notes       String?
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  category  String
+  color     String
+  imageUrl  String
+  createdAt DateTime @default(now())
+  season    String?
+  occasion  String?
+  notes     String?
   // ----------------------------------------
 
   // Relationship: Clothe belongs to a specific User
-  user        User     @relation(fields: [userId], references: [id])
+  user User        @relation(fields: [userId], references: [id])
   // Many-to-many relationship: Clothe can have multiple Tags
-  tags        ClotheTag[]
+  tags ClotheTag[]
 }
 
 // Tag Model - for organizing clothes
 model Tag {
-  id          String   @id @default(uuid())
-  name        String
-  userId      String?  // null = system tag, userId = user's custom tag
-  createdAt   DateTime @default(now())
-  
+  id        String   @id @default(uuid())
+  name      String
+  userId    String? // null = system tag, userId = user's custom tag
+  createdAt DateTime @default(now())
+
   // Relationships
-  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  clothes     ClotheTag[]
+  user    User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clothes ClotheTag[]
 }
 
 // Junction table for many-to-many relationship between Clothe and Tag
 model ClotheTag {
-  id        String   @id @default(uuid())
-  clotheId  String
-  tagId     String
-  
-  clothe    Clothe   @relation(fields: [clotheId], references: [id], onDelete: Cascade)
-  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
-  
+  id       String @id @default(uuid())
+  clotheId String
+  tagId    String
+
+  clothe Clothe @relation(fields: [clotheId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
   @@unique([clotheId, tagId]) // Prevent duplicate tag assignments
 }
 
 // Outfit Model (for saving favorite looks)
 model Outfit {
-  id          String   @id @default(uuid())
-  userId      String
-  name        String
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
   // Array of Clothe IDs that compose the outfit
-  clotheIds   String[]
-  createdAt   DateTime @default(now())
+  clotheIds String[]
+  createdAt DateTime @default(now())
 
-  user        User     @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+// Post Model (Social Feed)
+model Post {
+  id        String   @id @default(uuid())
+  userId    String
+  imageUrl  String
+  caption   String
+  isPublic  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

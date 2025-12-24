@@ -80,3 +80,4 @@ When adding a new clothing item via POST /api/closet/add-item:
 - System tags cannot be modified or deleted
 - Tag validation ensures no duplicate names per user
 
+
