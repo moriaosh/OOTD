@@ -202,5 +202,18 @@ export const postsAPI = {
       method: 'GET',
     });
   },
+
+  updatePost: async (postId, caption, isPublic) => {
+    return fetchWithAuth(`/posts/${postId}`, {
+      method: 'PUT',
+      body: JSON.stringify({ caption, isPublic }),
+    });
+  },
+
+  deletePost: async (postId) => {
+    return fetchWithAuth(`/posts/${postId}`, {
+      method: 'DELETE',
+    });
+  },
 };
 

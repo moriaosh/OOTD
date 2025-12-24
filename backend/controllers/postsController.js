@@ -153,9 +153,95 @@ const getMyPosts = async (req, res) => {
   }
 };
 
+// Update a post (only by the owner)
+const updatePost = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { postId } = req.params;
+    const { caption, isPublic } = req.body;
+
+    // Validate required fields
+    if (!caption || caption.trim() === '') {
+      return res.status(400).json({ message: 'אנא הזן/י כיתוב לפרסום.' });
+    }
+
+    // Check if post exists and belongs to user
+    const existingPost = await prisma.post.findUnique({
+      where: { id: postId },
+    });
+
+    if (!existingPost) {
+      return res.status(404).json({ message: 'הפרסום לא נמצא.' });
+    }
+
+    if (existingPost.userId !== userId) {
+      return res.status(403).json({ message: 'אין לך הרשאה לערוך פרסום זה.' });
+    }
+
+    // Update the post
+    const updatedPost = await prisma.post.update({
+      where: { id: postId },
+      data: {
+        caption: caption.trim(),
+        isPublic: isPublic === true || isPublic === 'true',
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          }
+        }
+      }
+    });
+
+    res.status(200).json({ 
+      message: 'הפרסום עודכן בהצלחה!', 
+      post: updatedPost 
+    });
+  } catch (error) {
+    console.error('UPDATE POST ERROR:', error);
+    res.status(500).json({ message: 'שגיאה בעדכון הפרסום.', error: error.message });
+  }
+};
+
+// Delete a post (only by the owner)
+const deletePost = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { postId } = req.params;
+
+    // Check if post exists and belongs to user
+    const existingPost = await prisma.post.findUnique({
+      where: { id: postId },
+    });
+
+    if (!existingPost) {
+      return res.status(404).json({ message: 'הפרסום לא נמצא.' });
+    }
+
+    if (existingPost.userId !== userId) {
+      return res.status(403).json({ message: 'אין לך הרשאה למחוק פרסום זה.' });
+    }
+
+    // Delete the post (image will remain in Cloudinary, but that's fine)
+    await prisma.post.delete({
+      where: { id: postId },
+    });
+
+    res.status(200).json({ message: 'הפרסום נמחק בהצלחה!' });
+  } catch (error) {
+    console.error('DELETE POST ERROR:', error);
+    res.status(500).json({ message: 'שגיאה במחיקת הפרסום.', error: error.message });
+  }
+};
+
 module.exports = {
   createPost,
   getFeed,
   getMyPosts,
+  updatePost,
+  deletePost,
 };
 

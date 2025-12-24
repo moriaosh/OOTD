@@ -6,6 +6,7 @@ import { postsAPI } from '../services/api';
 import Layout from '../components/Layout';
 import WardrobeOverlay from '../components/WardrobeOverlay';
 import CreatePost from '../components/CreatePost';
+import PostDetailModal from '../components/PostDetailModal';
 
 const Home = () => {
   const { isAuthenticated } = useAuth();
@@ -13,6 +14,8 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   const fetchFeed = async () => {
     try {
@@ -45,6 +48,24 @@ const Home = () => {
     setTimeout(() => {
       fetchFeed();
     }, 500);
+  };
+
+  const handlePostClick = (post) => {
+    setSelectedPost(post);
+    setIsDetailModalOpen(true);
+  };
+
+  const handlePostUpdated = (updatedPost) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((p) => (p.id === updatedPost.id ? updatedPost : p))
+    );
+    setSelectedPost(updatedPost);
+  };
+
+  const handlePostDeleted = (postId) => {
+    setPosts((prevPosts) => prevPosts.filter((p) => p.id !== postId));
+    setIsDetailModalOpen(false);
+    setSelectedPost(null);
   };
 
   const getUserDisplayName = (user) => {
@@ -183,7 +204,11 @@ const Home = () => {
         {!loading && !error && posts.length > 0 && (
           <div className="feed-grid">
             {posts.map((post) => (
-              <div key={post.id} className="feed-card">
+              <div 
+                key={post.id} 
+                className="feed-card cursor-pointer"
+                onClick={() => handlePostClick(post)}
+              >
                 <div className="feed-card-image-wrapper">
                   <img
                     src={post.imageUrl}
@@ -208,6 +233,20 @@ const Home = () => {
               </div>
             ))}
           </div>
+        )}
+
+        {/* Post Detail Modal */}
+        {selectedPost && (
+          <PostDetailModal
+            post={selectedPost}
+            isOpen={isDetailModalOpen}
+            onClose={() => {
+              setIsDetailModalOpen(false);
+              setSelectedPost(null);
+            }}
+            onPostUpdated={handlePostUpdated}
+            onPostDeleted={handlePostDeleted}
+          />
         )}
 
         {/* Create Post Modal */}

@@ -669,6 +669,10 @@
     box-shadow: 0 8px 24px rgba(0,0,0,0.15);
 }
 
+.feed-card.cursor-pointer {
+    cursor: pointer;
+}
+
 .feed-card-image-wrapper {
     width: 100%;
     padding-top: 100%; /* Square aspect ratio */
