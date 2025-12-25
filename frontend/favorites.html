@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <title>OOTD – המועדפים שלי</title>
+    <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+
+<!-- ⭐ כותרת עליונה -->
+<div class="site-header">
+    <img src="images/OOTD.png" class="header-img">
+</div>
+
+<!-- ⭐ סרגל ניווט -->
+<nav class="top-nav">
+    <ul class="nav-links">
+        <li><a href="home.html">דף הבית</a></li>
+        <li><a href="login.html">התחברות</a></li>
+        <li><a href="register.html">הרשמה</a></li>
+        <li><a href="add-item.html">הוספת בגד</a></li>
+        <li><a class="active" href="closet.html">הארון שלי</a></li>
+        <li><a href="profile.html">פרופיל אישי</a></li>
+        <li><a href="suggestions.html">המלצות לוקים</a></li>
+    </ul>
+</nav>
+<!-- ⭐ תוכן עמוד -->
+<main class="favorites-page">
+
+    <h2 class="favorites-title">⭐ הקטגוריות המועדפות עלייך</h2>
+
+    <!-- ⭐ גריד מועדפים (נטען דינמית) -->
+    <section id="favoritesGrid" class="category-grid">
+        <!-- נטען דרך favorites.js -->
+    </section>
+
+    <!-- ⭐ הודעה אם אין מועדפים -->
+    <p id="emptyMessage" class="empty-favorites-message" style="display:none;">
+        עדיין לא סימנת מועדפים 💔 <br>
+        חזרי לארון ובחרי קטגוריות ⭐
+    </p>
+
+</main>
+
+<!-- ⭐ JS של מועדפים -->
+<script src="js/favorites.js"></script>
+
+</body>
+</html>

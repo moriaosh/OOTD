@@ -118,4 +118,37 @@ document.addEventListener("DOMContentLoaded", function () {
     // 3. טופס הוספת בגד (ADD ITEM) - הסבה ל-FormData ול-API
     // הקוד המלא נמצא בקובץ add-item.js והוא ירוץ אוטומטית.
     // ----------------------------------
+
+        // ----------------------------------
+    // 4. מועדפים – שמירת קטגוריות מהארון
+    // ----------------------------------
+    const favoriteButtons = document.querySelectorAll(".favorite-btn");
+
+    // שליפת מועדפים קיימים או יצירת מערך ריק
+    let favorites = JSON.parse(localStorage.getItem("ootd_favorites")) || [];
+
+    favoriteButtons.forEach(btn => {
+        const categoryBox = btn.closest(".category-box");
+        const category = categoryBox.dataset.category;
+
+        // אם הקטגוריה כבר מועדפת – לצבוע כוכב
+        if (favorites.includes(category)) {
+            btn.classList.add("active");
+        }
+
+        btn.addEventListener("click", () => {
+            if (favorites.includes(category)) {
+                // הסרה ממועדפים
+                favorites = favorites.filter(c => c !== category);
+                btn.classList.remove("active");
+            } else {
+                // הוספה למועדפים
+                favorites.push(category);
+                btn.classList.add("active");
+            }
+
+            localStorage.setItem("ootd_favorites", JSON.stringify(favorites));
+        });
+    });
+
 });

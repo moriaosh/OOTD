@@ -919,3 +919,33 @@ html, body {
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
+
+
+/* =========================
+   ⭐ כפתור בגדים מועדפים
+========================= */
+.favorites-btn {
+    background: linear-gradient(135deg, #ffb6c1, #ffdde1);
+    color: #4a2c2a;
+    border: none;
+    border-radius: 30px;
+    padding: 12px 22px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    transition: all 0.25s ease;
+}
+
+.favorites-btn:hover {
+    background: linear-gradient(135deg, #ffa6b8, #ffd1d9);
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+}
+
+.favorites-btn:active {
+    transform: scale(0.97);
+}

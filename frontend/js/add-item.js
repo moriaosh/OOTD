@@ -3,6 +3,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const messageBox = document.querySelector(".message");
     const imageInput = document.getElementById("item-image");
     const preview = document.getElementById("image-preview");
+    const currentUser = JSON.parse(localStorage.getItem("ootd_currentUser"));
+
 
     /* ================================
        ⭐ תצוגה מקדימה של תמונה
@@ -53,6 +55,9 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("Occasion", occasion);
         formData.append("Notes", notes);
         formData.append("Image", image); // VERY IMPORTANT!
+        formData.append("IsFavorite", false);
+        formData.append("OwnerEmail", currentUser?.email || "");
+
 
         try {
             showMessage("⏳ מעלה את הבגד... רגע אחד ❤️", "loading");
