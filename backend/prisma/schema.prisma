@@ -41,9 +41,12 @@ model Clothe {
   // ----------------------------------------
 
   // Relationship: Clothe belongs to a specific User
-  user User        @relation(fields: [userId], references: [id])
+  user User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   // Many-to-many relationship: Clothe can have multiple Tags
   tags ClotheTag[]
+  @@index([userId])
+  @@index([category])
+  @@index([createdAt])
 }
 
 // Tag Model - for organizing clothes
@@ -79,7 +82,7 @@ model Outfit {
   clotheIds String[]
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // Post Model (Social Feed)
@@ -92,4 +95,8 @@ model Post {
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@index([isPublic])
+  @@index([createdAt])
+  @@index([isPublic, createdAt])
 }

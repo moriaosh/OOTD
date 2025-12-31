@@ -1,9 +1,16 @@
 import { useState } from 'react';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Star } from 'lucide-react';
+import { useFavorites } from '../contexts/FavoritesContext';
 
 const ClosetItem = ({ item }) => {
-  const { name, category, color, imageUrl, tags = [] } = item;
+  const { id, name, category, color, imageUrl, tags = [] } = item;
   const [imageError, setImageError] = useState(false);
+  const { toggleFavorite, isFavorite } = useFavorites();
+
+  const handleFavoriteClick = (e) => {
+    e.stopPropagation();
+    toggleFavorite(id);
+  };
 
   return (
     <div className="bg-white shadow-xl rounded-xl overflow-hidden transform transition duration-300 hover:scale-[1.02] border border-gray-100 flex flex-col">
@@ -22,6 +29,21 @@ const ClosetItem = ({ item }) => {
             onError={() => setImageError(true)}
           />
         )}
+
+        {/* Favorite Star Button */}
+        <button
+          onClick={handleFavoriteClick}
+          className="favorite-btn"
+          aria-label={isFavorite(id) ? 'הסר ממועדפים' : 'הוסף למועדפים'}
+        >
+          <Star
+            className={`w-6 h-6 transition-colors ${
+              isFavorite(id)
+                ? 'text-yellow-500 fill-yellow-500'
+                : 'text-gray-400 hover:text-yellow-400'
+            }`}
+          />
+        </button>
       </div>
 
       <div className="p-4 flex-grow flex flex-col justify-between" dir="rtl">

@@ -135,8 +135,12 @@ export const closetAPI = {
     });
   },
 
-  getSuggestions: async () => {
-    return fetchWithAuth('/closet/suggestions', {
+  getSuggestions: async (location = null) => {
+    const url = location
+      ? `/closet/suggestions?location=${encodeURIComponent(location)}`
+      : '/closet/suggestions';
+
+    return fetchWithAuth(url, {
       method: 'GET',
     });
   },

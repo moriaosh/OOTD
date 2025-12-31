@@ -1,5 +1,15 @@
 node_modules
 # Keep environment variables out of version control
-.env
-
+/backend/.env
 /generated/prisma
+
+# Logs
+*.log
+server.log
+
+# Temp files
+nul
+*.tmp
+
+# Claude AI files
+.claude/

@@ -1,10 +1,12 @@
-// This Controller handles the core logic for managing the user's closet: 
+// This Controller handles the core logic for managing the user's closet:
 // image upload, Cloudinary integration, and PostgreSQL/Prisma saving.
 
 // שימוש ב-require ובייבוא ישיר של Cloudinary, ללא קובץ config נפרד
 const { PrismaClient } = require('@prisma/client');
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
+const { getWeatherByCity, getWeatherRecommendations, filterClothesByWeather } = require('../utils/weatherService');
+const { generateAIOutfits } = require('../utils/geminiService');
 
 const prisma = new PrismaClient();
 
@@ -57,45 +59,198 @@ const getMyItems = async (req, res) => {
 };
 
 
-// --- 2. Generate AI Outfit Suggestions (Task 95) ---
+// --- 2. Generate AI Outfit Suggestions with Weather (Enhanced) ---
 const generateOutfitSuggestions = async (req, res) => {
     const userId = req.user.id;
+    const { location, useAI = 'true' } = req.query; // Optional: city & AI mode
+    const enableAI = useAI === 'true';
 
     try {
         const allClothes = await prisma.clothe.findMany({ where: { userId } });
 
         if (allClothes.length < 3) {
-            return res.status(200).json({ suggestions: [], message: 'יש להעלות לפחות 3 פריטים כדי לקבל המלצה.' });
+            return res.status(200).json({
+                suggestions: [],
+                message: 'יש להעלות לפחות 3 פריטים כדי לקבל המלצה.'
+            });
         }
 
-        // חלוקה לקטגוריות (לוגיקת MVP)
-        const categorized = {
-            top: allClothes.filter(c => ['חולצה', 'טופ', 'סריג'].includes(c.category)),
-            bottom: allClothes.filter(c => ['מכנס', 'חצאית'].includes(c.category)),
-            shoe: allClothes.filter(c => c.category === 'נעל'),
-            dress: allClothes.filter(c => c.category === 'שמלה'),
-            outerwear: allClothes.filter(c => ['ז\'קט', 'מעיל'].includes(c.category)),
+        let weather = null;
+        let weatherRecs = null;
+        let categorized;
+        let usingAI = false;
+
+        // If location provided, fetch weather
+        if (location) {
+            try {
+                weather = await getWeatherByCity(location);
+                weatherRecs = getWeatherRecommendations(weather);
+            } catch (weatherError) {
+                console.error('Weather fetch failed:', weatherError);
+            }
+        }
+
+        let suggestions = [];
+
+        // Try AI-powered suggestions first (if enabled)
+        if (enableAI) {
+            try {
+                console.log('Attempting AI outfit generation...');
+                const aiSuggestions = await generateAIOutfits(allClothes, weather);
+
+                if (aiSuggestions && aiSuggestions.length > 0) {
+                    suggestions = aiSuggestions;
+                    usingAI = true;
+                    console.log(`AI generated ${aiSuggestions.length} outfits successfully`);
+                }
+            } catch (aiError) {
+                console.error('AI outfit generation failed, falling back to basic mode:', aiError.message);
+                // Will fall through to basic algorithm below
+            }
+        }
+
+        // Fallback: Basic algorithm (if AI disabled or failed)
+        if (suggestions.length === 0) {
+            console.log('Using basic outfit algorithm...');
+
+            // Filter/categorize clothes by weather if available
+            if (weatherRecs) {
+                categorized = filterClothesByWeather(allClothes, weatherRecs);
+            } else {
+                categorized = {
+                    top: allClothes.filter(c => ['חולצה', 'טופ', 'סריג'].includes(c.category)),
+                    bottom: allClothes.filter(c => ['מכנס', 'חצאית'].includes(c.category)),
+                    shoe: allClothes.filter(c => c.category === 'נעל'),
+                    dress: allClothes.filter(c => c.category === 'שמלה'),
+                    outerwear: allClothes.filter(c => ['ז\'קט', 'מעיל'].includes(c.category)),
+                    accessory: allClothes.filter(c => c.category === 'אביזר')
+                };
+            }
+
+            // Suggestion 1: Classic outfit (top + bottom + shoes + optional outerwear)
+            if (categorized.top.length && categorized.bottom.length && categorized.shoe.length) {
+                const outfit = {
+                    name: weatherRecs ? "לוק מותאם למזג האוויר" : "לוק בסיסי קלאסי",
+                    items: [
+                        getRandomItem(categorized.top),
+                        getRandomItem(categorized.bottom),
+                        getRandomItem(categorized.shoe)
+                    ],
+                    explanation: null
+                };
+
+                // Add outerwear if weather requires it or if temperature is low
+                if (weatherRecs?.requiresOuterwear && categorized.outerwear.length) {
+                    outfit.items.push(getRandomItem(categorized.outerwear));
+                }
+
+                // Add weather explanation
+                if (weather && weatherRecs) {
+                    const explanationParts = [];
+                    explanationParts.push(`טמפרטורה: ${weather.temperature}°C`);
+
+                    if (weatherRecs.requiresOuterwear) {
+                        explanationParts.push('הוספנו מעיל כי קר בחוץ');
+                    }
+                    if (weatherRecs.requiresRainGear) {
+                        explanationParts.push('מזג אוויר גשום - מומלץ מטריה');
+                    }
+                    if (weatherRecs.preferredSeasons.length > 0) {
+                        explanationParts.push(`פריטים מותאמים לעונת ${weatherRecs.preferredSeasons.join('/')}`);
+                    }
+
+                    outfit.explanation = explanationParts.join(' • ');
+                }
+
+                suggestions.push(outfit);
+            }
+
+            // Suggestion 2: Dress-based outfit
+            if (categorized.dress.length && categorized.shoe.length) {
+                const outfit = {
+                    name: weatherRecs ? "שמלה מותאמת למזג האוויר" : "לוק שמלה קליל",
+                    items: [
+                        getRandomItem(categorized.dress),
+                        getRandomItem(categorized.shoe)
+                    ],
+                    explanation: null
+                };
+
+                // Add jacket/outerwear if cold
+                if (weatherRecs?.requiresOuterwear && categorized.outerwear.length) {
+                    outfit.items.push(getRandomItem(categorized.outerwear));
+                }
+
+                // Add weather explanation
+                if (weather && weatherRecs) {
+                    const explanationParts = [];
+                    explanationParts.push(`טמפרטורה: ${weather.temperature}°C`);
+
+                    if (weatherRecs.requiresOuterwear) {
+                        explanationParts.push('הוספנו ז\'קט כי קריר בחוץ');
+                    }
+                    if (weatherRecs.requiresRainGear) {
+                        explanationParts.push('גשום - תיקחי מטריה');
+                    }
+
+                    outfit.explanation = explanationParts.join(' • ');
+                }
+
+                suggestions.push(outfit);
+            }
+
+            // Suggestion 3: Alternative combination (different items)
+            if (categorized.top.length > 1 && categorized.bottom.length > 1 && categorized.shoe.length) {
+                const outfit = {
+                    name: "לוק חלופי",
+                    items: [
+                        getRandomItem(categorized.top),
+                        getRandomItem(categorized.bottom),
+                        getRandomItem(categorized.shoe)
+                    ],
+                    explanation: weather ? `שילוב נוסף מותאם ל-${weather.temperature}°C` : null
+                };
+
+                suggestions.push(outfit);
+            }
+
+            // If no suggestions were created but user has items, provide helpful message
+            if (suggestions.length === 0 && allClothes.length >= 3 && categorized) {
+                let helpMessage = null;
+                const missing = [];
+                if (!categorized.shoe.length) missing.push('נעליים');
+                if (!categorized.top.length && !categorized.dress.length) missing.push('חולצות או שמלות');
+                if (!categorized.bottom.length && !categorized.dress.length) missing.push('מכנסיים או חצאיות');
+
+                if (missing.length > 0) {
+                    helpMessage = `יש לך ${allClothes.length} פריטים, אבל חסרים פריטים מסוגים מסוימים ליצירת לוק שלם. נסי להוסיף: ${missing.join(', ')}`;
+                } else {
+                    helpMessage = 'לא ניתן ליצור הצעות לוק מהפריטים הקיימים. נסי להוסיף מגוון רחב יותר של קטגוריות.';
+                }
+
+                // Add message to first suggestion if it exists
+                if (suggestions.length > 0 && !suggestions[0].explanation) {
+                    suggestions[0].explanation = helpMessage;
+                }
+            }
+        } // End of basic algorithm block
+
+        // Response with weather data if available
+        const response = {
+            suggestions: suggestions.slice(0, 3),
+            usingAI: usingAI,
+            weather: weather ? {
+                temperature: weather.temperature,
+                feelsLike: weather.feelsLike,
+                condition: weather.condition,
+                description: weather.description,
+                city: weather.city,
+                icon: weather.icon
+            } : null,
+            weatherMessage: weatherRecs?.message || null
         };
 
-        const suggestions = [];
-        // יצירת 3 שילובים אקראיים מתוך הקטגוריות
-        
-        if (categorized.top.length && categorized.bottom.length && categorized.shoe.length) {
-            suggestions.push({
-                name: "לוק בסיסי קלאסי",
-                items: [getRandomItem(categorized.top), getRandomItem(categorized.bottom), getRandomItem(categorized.shoe)]
-            });
-        }
-        
-        if (categorized.dress.length && categorized.shoe.length) {
-             suggestions.push({
-                name: "לוק שמלה קליל",
-                items: [getRandomItem(categorized.dress), getRandomItem(categorized.shoe)]
-            });
-        }
-        
-        // נותן רק 3 הצעות מקסימום
-        res.status(200).json({ suggestions: suggestions.slice(0, 3) });
+        res.status(200).json(response);
 
     } catch (error) {
         console.error('AI Suggestion Error:', error);

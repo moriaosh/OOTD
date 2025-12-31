@@ -16,8 +16,27 @@ const register = async (req, res) => {
 
     // ודא שכל השדות קיימים
     if (!email || !password) {
-        return res.status(400).json({ message: 'אנא ספק/י אימייל וסיסמה.' });
+        if (password.length < 8) {
+            return res.status(400).json({
+            message: 'הסיסמה חייבת להכיל לפחות 8 תווים.'
+            });
     }
+
+    if (!/(?=.*[A-Za-z])(?=.*\d)/.test(password)) {
+        return res.status(400).json({
+         message: 'הסיסמה חייבת להכיל אותיות ומספרים.'
+        });
+    }
+
+  // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+     return res.status(400).json({
+      message: 'כתובת אימייל לא תקינה.'
+     });
+    }
+    return res.status(400).json({ message: 'אנא ספק/י אימייל וסיסמה.' });
+}
 
     try {
         // 1. בדיקה האם המשתמש כבר קיים (Prisma: findUnique)

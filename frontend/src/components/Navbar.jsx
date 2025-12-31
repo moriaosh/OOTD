@@ -43,6 +43,11 @@ const Navbar = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/favorites" className={isActive('/favorites') ? 'active' : ''}>
+                  מועדפים
+                </Link>
+              </li>
+              <li>
                 <Link to="/suggestions" className={isActive('/suggestions') ? 'active' : ''}>
                   המלצות לוקים
                 </Link>
