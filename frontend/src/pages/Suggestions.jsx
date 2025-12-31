@@ -22,6 +22,7 @@ const Suggestions = () => {
   const [weatherMessage, setWeatherMessage] = useState(null);
   const [helpMessage, setHelpMessage] = useState(null);
   const [usingAI, setUsingAI] = useState(false);
+  const [calendarEvent, setCalendarEvent] = useState(null);
   const [isFromCache, setIsFromCache] = useState(false);
   const abortControllerRef = useRef(null);
 
@@ -67,6 +68,20 @@ const Suggestions = () => {
     }
   };
 
+  const fetchCalendarRecommendation = async () => {
+  try {
+    const response = await api.post('/calendar/recommendations', {
+      date: new Date().toISOString()
+    });
+
+    setCalendarEvent(response.data || null);
+  } catch (err) {
+    console.error('Calendar recommendation error:', err);
+    setCalendarEvent(null);
+  }
+};
+
+
   const fetchSuggestions = async (cityName = null, forceRefresh = false) => {
     // Cancel previous request if exists
     if (abortControllerRef.current) {
@@ -108,14 +123,16 @@ const Suggestions = () => {
     // Try to load from cache first
     const loaded = loadFromCache();
 
-    if (!loaded) {
-      // No cache - load with default city
+      if (!loaded) {
       const defaultCity = 'Jerusalem,IL';
       setLocation(defaultCity);
       fetchSuggestions(defaultCity);
+      fetchCalendarRecommendation();
     } else {
       setLoading(false);
+      fetchCalendarRecommendation();
     }
+
 
     // Cleanup on unmount
     return () => {
@@ -174,6 +191,16 @@ const Suggestions = () => {
             <div className="suggestions-title-wrapper">
               <Sparkles className="suggestions-icon" />
               <h1 className="suggestions-title">המלצות לוקים</h1>
+                    {calendarEvent && (
+                        <div className="mt-3 px-4 py-3 bg-pink-50 border border-pink-300 rounded-xl">
+                          <p className="font-bold text-pink-700">
+                            📅 לוק מיוחד ל־{calendarEvent.eventName}
+                          </p>
+                          <p className="text-sm text-pink-600">
+                            {calendarEvent.description}
+                          </p>
+                        </div>
+                      )}
               {usingAI && (
                 <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full mr-2">
                   ✨ AI Fashion Stylist

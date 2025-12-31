@@ -351,8 +351,59 @@ ${closetList}
   }
 };
 
+/**
+ * Calendar-based outfit recommendation
+ */
+const analyzeCalendarOutfit = async (userCloset, calendarContext) => {
+  if (!GEMINI_API_KEY || GEMINI_API_KEY === 'your_gemini_api_key_here') {
+    throw new Error('Gemini API key not configured');
+  }
+
+  const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+
+  const closetList = userCloset.map((item, idx) =>
+    `${idx + 1}. ${item.name} - ${item.category}, צבע: ${item.color}, עונה: ${item.season || 'כללי'}, אירוע: ${item.occasion || 'יומי'}`
+  ).join('\n');
+
+  const prompt = `
+יש לי אירוע ביומן ואני רוצה לוק מתאים.
+
+📅 תאריך: ${calendarContext.date}
+🎉 אירוע: ${calendarContext.event}
+📍 מיקום: ${calendarContext.location || 'לא צוין'}
+🌦 מזג אוויר: ${calendarContext.weather || 'לא ידוע'}
+
+👗 הארון שלי:
+${closetList}
+
+תן:
+1. לוק מומלץ
+2. הסבר
+3. ציון ביטחון 1–10
+4. אזהרות או null
+
+JSON בלבד:
+{
+  "outfit": "<תיאור>",
+  "explanation": "<הסבר>",
+  "confidence": <1-10>,
+  "warnings": "<טקסט או null>"
+}
+`;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash',
+    contents: prompt,
+  });
+
+  const text = response.text.replace(/```json|```/g, '').trim();
+  return JSON.parse(text);
+};
+
+
 module.exports = {
   generateAIOutfits,
   analyzeOutfitMatch,
-  analyzePurchaseCompatibility
+  analyzePurchaseCompatibility,
+  analyzeCalendarOutfit
 };
