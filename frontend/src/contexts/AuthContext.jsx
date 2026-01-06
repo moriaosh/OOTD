@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { authAPI } from '../services/api';
+import { initializeActivityMonitoring, isInactive, clearSession, updateLastActivity } from '../utils/authTimeout';
 
 const AuthContext = createContext(null);
 
@@ -20,25 +21,44 @@ export const AuthProvider = ({ children }) => {
     const checkAuth = () => {
       const token = authAPI.isAuthenticated();
       const currentUser = authAPI.getCurrentUser();
-      
+
       if (token && currentUser) {
+        // Check for inactivity before setting user
+        if (isInactive()) {
+          console.log('🔒 User inactive for >1 hour. Auto-logging out...');
+          clearSession();
+          return;
+        }
         setUser(currentUser);
       } else {
         setUser(null);
       }
       setLoading(false);
     };
-    
+
     checkAuth();
-    
+
     // Also listen for storage changes (in case of multiple tabs)
     const handleStorageChange = () => {
       checkAuth();
     };
-    
+
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
+
+  // Start activity monitoring when user is authenticated
+  useEffect(() => {
+    if (!user) return;
+
+    console.log('🔒 Starting inactivity monitoring (1 hour timeout)');
+    const cleanup = initializeActivityMonitoring();
+
+    return () => {
+      console.log('🔒 Stopping inactivity monitoring');
+      if (cleanup) cleanup();
+    };
+  }, [user]);
 
   const login = async (email, password) => {
     console.log('🟡 AuthContext: Starting login...');

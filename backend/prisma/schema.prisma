@@ -24,6 +24,7 @@ model User {
   outfits   Outfit[]
   tags      Tag[] // User's custom tags
   posts     Post[] // User's social feed posts
+  trips     TripPlan[] // User's packing lists for trips
 }
 
 // Clothing Item Model (Task 3)
@@ -99,4 +100,40 @@ model Post {
   @@index([isPublic])
   @@index([createdAt])
   @@index([isPublic, createdAt])
+}
+
+// Trip Plan Model (Smart Packing List)
+model TripPlan {
+  id           String   @id @default(uuid())
+  userId       String
+  destination  String
+  startDate    DateTime
+  endDate      DateTime
+  activities   String[] // Array of activities (Hiking, Beach, Business, etc.)
+  packingStyle String   // Minimalist, Standard, Extended
+  weatherData  Json?    // Store weather forecast as JSON
+  createdAt    DateTime @default(now())
+
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  packingItems PackingListItem[]
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// Packing List Item Model
+model PackingListItem {
+  id         String   @id @default(uuid())
+  tripId     String
+  category   String   // Tops, Bottoms, Shoes, Accessories, Toiletries
+  name       String
+  quantity   Int      @default(1)
+  isOwned    Boolean  @default(false) // true = user owns it, false = recommended to buy/borrow
+  clotheId   String?  // If owned, reference to the actual clothe item
+  suggestion String?  // AI suggestion for missing items
+  isPacked   Boolean  @default(false) // User can mark items as packed
+
+  trip TripPlan @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId])
 }

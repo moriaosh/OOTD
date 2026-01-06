@@ -35,6 +35,7 @@ const aiLimiter = rateLimit({
 app.use('/api/closet/suggestions', aiLimiter);
 app.use('/api/purchase/analyze', aiLimiter);
 app.use('/api/calendar/recommendations', aiLimiter);
+app.use('/api/trips/generate', aiLimiter); // AI-powered packing list
 
 /* ===============================
    CORS
@@ -77,6 +78,7 @@ const tagRoutes = require('./routes/tags');
 const postRoutes = require('./routes/posts');
 const purchaseRoutes = require('./routes/purchase');
 const calendarRoutes = require('./routes/calendar');
+const tripsRoutes = require('./routes/trips');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/closet', closetRoutes);
@@ -84,6 +86,7 @@ app.use('/api/tags', tagRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/purchase', purchaseRoutes);
 app.use('/api/calendar', calendarRoutes);
+app.use('/api/trips', tripsRoutes);
 
 /* ===============================
    Server Start

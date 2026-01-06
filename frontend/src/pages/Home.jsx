@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Loader2, AlertCircle, Image as ImageIcon } from 'lucide-react';
+import { Loader2, AlertCircle, Image as ImageIcon, Plane } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { postsAPI } from '../services/api';
 import Layout from '../components/Layout';
 import WardrobeOverlay from '../components/WardrobeOverlay';
 import CreatePost from '../components/CreatePost';
 import PostDetailModal from '../components/PostDetailModal';
+import TripPlannerModal from '../components/TripPlannerModal';
 
 const Home = () => {
   const { isAuthenticated } = useAuth();
@@ -16,6 +17,7 @@ const Home = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isTripPlannerOpen, setIsTripPlannerOpen] = useState(false);
 
   const fetchFeed = async () => {
     try {
@@ -151,12 +153,21 @@ const Home = () => {
         {/* Header */}
         <header className="feed-header">
           <h1 className="feed-title">פיד ציבורי</h1>
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="create-post-btn"
-          >
-            + צור פרסום חדש
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setIsTripPlannerOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-semibold hover:from-indigo-600 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
+            >
+              <Plane className="w-4 h-4" />
+              תכנון טיול
+            </button>
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="create-post-btn"
+            >
+              + צור פרסום חדש
+            </button>
+          </div>
         </header>
 
         {/* Loading State */}
@@ -254,6 +265,12 @@ const Home = () => {
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
           onPostCreated={handlePostCreated}
+        />
+
+        {/* Trip Planner Modal */}
+        <TripPlannerModal
+          isOpen={isTripPlannerOpen}
+          onClose={() => setIsTripPlannerOpen(false)}
         />
       </div>
     </Layout>

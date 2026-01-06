@@ -11,7 +11,8 @@ const CACHE_KEYS = {
   TIMESTAMP: 'ootd_suggestions_timestamp'
 };
 
-const CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
+// NO CACHE EXPIRATION - Save tokens by keeping suggestions until manual refresh!
+// User can click "Refresh" button to regenerate with new AI call
 
 const Suggestions = () => {
   const [suggestions, setSuggestions] = useState([]);
@@ -24,13 +25,28 @@ const Suggestions = () => {
   const [usingAI, setUsingAI] = useState(false);
   const [calendarEvent, setCalendarEvent] = useState(null);
   const [isFromCache, setIsFromCache] = useState(false);
+  const [cacheTimestamp, setCacheTimestamp] = useState(null);
   const abortControllerRef = useRef(null);
 
-  // Check if cache is still valid
+  // Format cache timestamp for display
+  const formatCacheTime = (timestamp) => {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return 'עכשיו';
+    if (minutes < 60) return `לפני ${minutes} דקות`;
+    if (hours < 24) return `לפני ${hours} שעות`;
+    if (days < 7) return `לפני ${days} ימים`;
+    return new Date(timestamp).toLocaleDateString('he-IL');
+  };
+
+  // Check if cache exists (NO time limit - save tokens!)
   const isCacheValid = () => {
-    const timestamp = localStorage.getItem(CACHE_KEYS.TIMESTAMP);
-    if (!timestamp) return false;
-    return Date.now() - parseInt(timestamp) < CACHE_DURATION;
+    const cachedData = localStorage.getItem(CACHE_KEYS.SUGGESTIONS);
+    return !!cachedData;
   };
 
   // Load from cache
@@ -38,6 +54,7 @@ const Suggestions = () => {
     try {
       const cachedData = localStorage.getItem(CACHE_KEYS.SUGGESTIONS);
       const cachedLocation = localStorage.getItem(CACHE_KEYS.LOCATION);
+      const timestamp = localStorage.getItem(CACHE_KEYS.TIMESTAMP);
 
       if (cachedData && isCacheValid()) {
         const data = JSON.parse(cachedData);
@@ -48,6 +65,7 @@ const Suggestions = () => {
         setUsingAI(data.usingAI || false);
         setLocation(cachedLocation || 'Jerusalem,IL');
         setIsFromCache(true);
+        setCacheTimestamp(timestamp ? parseInt(timestamp) : null);
         return true;
       }
       return false;
@@ -208,10 +226,10 @@ const Suggestions = () => {
               )}
             </div>
             <div className="flex items-center gap-3">
-              {isFromCache && (
-                <span className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full flex items-center gap-1">
+              {isFromCache && cacheTimestamp && (
+                <span className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full flex items-center gap-1" title={new Date(cacheTimestamp).toLocaleString('he-IL')}>
                   <Clock className="w-3 h-3" />
-                  שמור במטמון
+                  נשמר {formatCacheTime(cacheTimestamp)}
                 </span>
               )}
               <button
