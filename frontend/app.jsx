@@ -14,6 +14,75 @@ const COLORS = ['שחור', 'לבן', 'אפור', 'כחול', 'אדום', 'יר�
 const SEASONS = ['קיץ', 'חורף', 'אביב', 'סתיו', 'כל העונות'];
 const OCCASIONS = ['יומיומי', 'עבודה', 'אירוע', 'אלגנטי'];
 
+// --- רכיב התכנון השבועי (החדש!) ---
+const WeeklyPlanner = ({ closetItems }) => {
+    const days = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+    const [plan, setPlan] = useState({});
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedDay, setSelectedDay] = useState(null);
+
+    const selectOutfit = (day, item) => {
+        setPlan({ ...plan, [day]: item });
+        setIsModalOpen(false);
+    };
+
+    return (
+        <div className="space-y-6" dir="rtl">
+            <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
+                {days.map((day) => (
+                    <div key={day} className="bg-white p-4 rounded-xl shadow-md border-2 border-dashed border-gray-200 flex flex-col items-center min-h-[220px]">
+                        <h3 className="font-bold text-indigo-700 mb-3">{day}</h3>
+                        {plan[day] ? (
+                            <div className="relative w-full group">
+                                <img src={plan[day].imageUrl} className="w-full h-32 object-cover rounded-lg shadow" alt="outfit" />
+                                <button 
+                                    onClick={() => setPlan({...plan, [day]: null})}
+                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg opacity-0 group-hover:opacity-100 transition"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                                <p className="text-xs mt-2 font-medium text-center truncate">{plan[day].name}</p>
+                            </div>
+                        ) : (
+                            <button 
+                                onClick={() => { setSelectedDay(day); setIsModalOpen(true); }}
+                                className="mt-auto mb-auto flex flex-col items-center text-gray-400 hover:text-indigo-500 transition"
+                            >
+                                <PlusCircle className="w-10 h-10 mb-2" />
+                                <span className="text-sm">בחר לבוש</span>
+                            </button>
+                        )}
+                    </div>
+                ))}
+            </div>
+
+            {/* מודאל לבחירת פריט מהארון */}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
+                    <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+                        <div className="p-4 border-b flex justify-between items-center bg-gray-50">
+                            <h2 className="text-xl font-bold">בחר פריט ליום {selectedDay}</h2>
+                            <button onClick={() => setIsModalOpen(false)}><X /></button>
+                        </div>
+                        <div className="p-6 overflow-y-auto grid grid-cols-2 sm:grid-cols-4 gap-4">
+                            {closetItems.map(item => (
+                                <div 
+                                    key={item.id} 
+                                    onClick={() => selectOutfit(selectedDay, item)}
+                                    className="cursor-pointer border rounded-lg overflow-hidden hover:ring-2 ring-indigo-500 transition"
+                                >
+                                    <img src={item.imageUrl} className="h-32 w-full object-cover" />
+                                    <p className="p-2 text-xs font-bold truncate text-center">{item.name}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
 // --- רכיב טופס ההעלאה וה Modal (Task 9 & 11) ---
 const UploadModal = ({ isOpen, onClose, onUploadSuccess }) => {
     // בפרויקט אמיתי: הטוקן ייקרא מ-localStorage
@@ -217,13 +286,13 @@ const ClosetItem = ({ item }) => {
   );
 };
 
-
 // הקומפוננטה הראשית שמבצעת את השליפה ומציגה את הרשת
 const App = () => {
     const [closetItems, setClosetItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false); // מצב לניהול ה-Modal
+    const [activeTab, setActiveTab] = useState('closet'); // לוז שבועי
     
     // בפרויקט אמיתי: הטוקן ייקרא מ-localStorage
     const currentToken = localStorage.getItem('ootd_authToken') || MOCK_TOKEN; 
@@ -235,7 +304,7 @@ const App = () => {
 
         if (!currentToken || currentToken === MOCK_TOKEN) {
             // אם הטוקן הוא עדיין טוקן הדמה, אל תנסה לשלוף
-            setError('שגיאה: טוקן אימות חסר. אנא התחברו.');
+           setError('שגיאה: טוקן אימות חסר. אנא התחברו.');
             setLoading(false);
             return;
         }
@@ -288,6 +357,20 @@ const App = () => {
                 <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-800 mb-4 sm:mb-0">
                     הארון שלי
                 </h1>
+                <div className="flex gap-4 mt-4">
+                    <button 
+                        onClick={() => setActiveTab('closet')}
+                        className={`pb-2 px-1 font-bold transition ${activeTab === 'closet' ? 'border-b-4 border-indigo-600 text-indigo-600' : 'text-gray-400'}`}
+                    >
+                        הארון שלי
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('planner')}
+                        className={`pb-2 px-1 font-bold transition ${activeTab === 'planner' ? 'border-b-4 border-indigo-600 text-indigo-600' : 'text-gray-400'}`}
+                    >
+                        תכנון שבועי
+                    </button>
+                </div>
                 <div className="flex space-x-2 space-x-reverse">
                     {/* כפתור הוספת פריט (פתיחת ה-Modal) */}
                     <button 
@@ -304,7 +387,7 @@ const App = () => {
                 </div>
             </header>
 
-            {/* הודעות סטאטוס */}
+       {/* הודעות סטאטוס */}
             {loading && (
                 <div className="flex items-center justify-center p-8">
                     <Loader2 className="w-8 h-8 animate-spin text-indigo-500 ml-3" /> טוען ארון...
@@ -317,21 +400,28 @@ const App = () => {
                 </div>
             )}
 
-            {/* תצוגת פריטים */}
-            {!loading && !error && closetItems.length === 0 ? (
-                <div className="text-center p-12 bg-white rounded-xl shadow-lg border border-gray-200">
-                    <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-xl font-semibold text-gray-600">אין עדיין פריטים בארון.</p>
-                </div>
-            ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-                    {closetItems.map((item) => (
-                        <ClosetItem key={item.id} item={item} />
-                    ))}
-                </div>
+            {/* --- כאן השינוי החשוב: בחירה בין ארון למתכנן --- */}
+            {!loading && !error && (
+                activeTab === 'closet' ? (
+                    /* אם אנחנו בטאב ארון - מציגים את הקוד המקורי שלך */
+                    closetItems.length === 0 ? (
+                        <div className="text-center p-12 bg-white rounded-xl shadow-lg border border-gray-200">
+                            <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                            <p className="text-xl font-semibold text-gray-600">אין עדיין פריטים בארון.</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+                            {closetItems.map((item) => (
+                                <ClosetItem key={item.id} item={item} />
+                            ))}
+                        </div>
+                    )
+                ) : (
+                    /* אם אנחנו בטאב מתכנן - מציגים את הפיצ'ר החדש של לוז שבועי */
+                    <WeeklyPlanner closetItems={closetItems} />
+                )
             )}
 
-            {/* ה-Modal של ההעלאה (שמשתמש ב-UploadForm) */}
             <UploadModal 
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}

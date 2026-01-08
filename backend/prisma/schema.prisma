@@ -137,3 +137,17 @@ model PackingListItem {
 
   @@index([tripId])
 }
+
+
+model WeeklyPlan {
+  id        String   @id @default(uuid())
+  startDate DateTime // התאריך של יום ראשון באותו שבוע
+  sunday    String?  // ID של אאוטפיט (קשר לטבלת Outfits אם קיימת)
+  monday    String?
+  tuesday   String?
+  wednesday String?
+  thursday  String?
+  friday    String?
+  saturday  String?
+  createdAt DateTime @default(now())
+}
