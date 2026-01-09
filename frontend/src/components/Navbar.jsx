@@ -53,6 +53,16 @@ const Navbar = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/weekly-planner" className={isActive('/weekly-planner') ? 'active' : ''}>
+                  תכנון שבועי
+                </Link>
+              </li>
+              <li>
+                <Link to="/color-analysis" className={isActive('/color-analysis') ? 'active' : ''}>
+                  ניתוח צבעים
+                </Link>
+              </li>
+              <li>
                 <Link to="/profile" className={isActive('/profile') ? 'active' : ''}>
                   פרופיל אישי
                 </Link>

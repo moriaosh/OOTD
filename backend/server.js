@@ -36,6 +36,7 @@ app.use('/api/closet/suggestions', aiLimiter);
 app.use('/api/purchase/analyze', aiLimiter);
 app.use('/api/calendar/recommendations', aiLimiter);
 app.use('/api/trips/generate', aiLimiter); // AI-powered packing list
+app.use('/api/color-analysis/analyze', aiLimiter); // AI-powered color analysis
 
 /* ===============================
    CORS
@@ -79,6 +80,8 @@ const postRoutes = require('./routes/posts');
 const purchaseRoutes = require('./routes/purchase');
 const calendarRoutes = require('./routes/calendar');
 const tripsRoutes = require('./routes/trips');
+const weeklyRoutes = require('./routes/weeklyRoutes');
+const colorAnalysisRoutes = require('./routes/colorAnalysis');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/closet', closetRoutes);
@@ -87,6 +90,8 @@ app.use('/api/posts', postRoutes);
 app.use('/api/purchase', purchaseRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/trips', tripsRoutes);
+app.use('/api/weekly', weeklyRoutes);
+app.use('/api/color-analysis', colorAnalysisRoutes);
 
 /* ===============================
    Server Start

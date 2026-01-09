@@ -10,6 +10,8 @@ import Suggestions from './pages/Suggestions';
 import Profile from './pages/Profile';
 import Feed from './pages/Feed';
 import Favorites from './pages/Favorites';
+import WeeklyPlanner from './pages/WeeklyPlanner';
+import ColorAnalysis from './pages/ColorAnalysis';
 
 function App() {
   return (
@@ -57,6 +59,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Feed />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/weekly-planner"
+              element={
+                <ProtectedRoute>
+                  <WeeklyPlanner />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/color-analysis"
+              element={
+                <ProtectedRoute>
+                  <ColorAnalysis />
                 </ProtectedRoute>
               }
             />

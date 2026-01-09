@@ -14,17 +14,19 @@ datasource db {
 
 // User Model (Tasks 2, 4)
 model User {
-  id        String   @id @default(uuid()) // Use UUID as the primary identifier
-  email     String   @unique
-  password  String // Hashed password using bcrypt
-  firstName String?
-  lastName  String?
+  id             String   @id @default(uuid()) // Use UUID as the primary identifier
+  email          String   @unique
+  password       String // Hashed password using bcrypt
+  firstName      String?
+  lastName       String?
   // One-to-many relationship: One User owns multiple Clothes
-  clothes   Clothe[]
-  outfits   Outfit[]
-  tags      Tag[] // User's custom tags
-  posts     Post[] // User's social feed posts
-  trips     TripPlan[] // User's packing lists for trips
+  clothes        Clothe[]
+  outfits        Outfit[]
+  tags           Tag[] // User's custom tags
+  posts          Post[] // User's social feed posts
+  trips          TripPlan[] // User's packing lists for trips
+  weeklyPlans    WeeklyPlan[] // User's weekly outfit plans
+  colorAnalyses  ColorAnalysis[] // User's color analysis results
 }
 
 // Clothing Item Model (Task 3)
@@ -141,8 +143,9 @@ model PackingListItem {
 
 model WeeklyPlan {
   id        String   @id @default(uuid())
+  userId    String
   startDate DateTime // התאריך של יום ראשון באותו שבוע
-  sunday    String?  // ID של אאוטפיט (קשר לטבלת Outfits אם קיימת)
+  sunday    String?  // ID של clothe item
   monday    String?
   tuesday   String?
   wednesday String?
@@ -150,4 +153,31 @@ model WeeklyPlan {
   friday    String?
   saturday  String?
   createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([startDate])
+}
+
+// Color Analysis Model - Store AI analysis of user's face for color recommendations
+model ColorAnalysis {
+  id              String   @id @default(uuid())
+  userId          String
+  imageUrl        String   // Uploaded selfie URL
+  skinTone        String   // warm/cool/neutral
+  skinToneDetails String?  // Detailed description
+  eyeColor        String
+  hairColor       String
+  lipColor        String?
+  season          String   // Spring/Summer/Autumn/Winter
+  bestColors      String[] // Array of hex colors that look best
+  avoidColors     String[] // Array of hex colors to avoid
+  recommendations String   // AI recommendations text
+  createdAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
 }
