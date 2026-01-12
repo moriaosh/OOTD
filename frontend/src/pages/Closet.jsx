@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, PlusCircle, AlertCircle, Loader2, X, Tag as TagIcon } from 'lucide-react';
+import { Search, PlusCircle, AlertCircle, Loader2, X, Tag as TagIcon, ShoppingBag } from 'lucide-react';
 import { closetAPI } from '../services/api';
 import UploadModal from '../components/UploadModal';
 import ClosetItem from '../components/ClosetItem';
 import TagManager from '../components/TagManager';
 import Layout from '../components/Layout';
+import EditItemModal from '../components/EditItemModal';
+import BulkUpload from '../components/BulkUpload';
+import { Download, Upload, FileSpreadsheet } from 'lucide-react';
 
 const Closet = () => {
   const [closetItems, setClosetItems] = useState([]);
@@ -17,6 +20,10 @@ const Closet = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [editingItem, setEditingItem] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [allTags, setAllTags] = useState([]);
+  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
 
   // Get category from URL on mount
   useEffect(() => {
@@ -40,8 +47,24 @@ const Closet = () => {
     }
   };
 
+  const fetchTags = async () => {
+    try {
+      const token = localStorage.getItem('ootd_authToken');
+      const response = await fetch('http://localhost:5000/api/tags', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const tags = await response.json();
+        setAllTags(tags);
+      }
+    } catch (error) {
+      console.error('Error fetching tags:', error);
+    }
+  };
+
   useEffect(() => {
     fetchClosetItems();
+    fetchTags();
   }, []);
 
   const handleUploadSuccess = (newItem) => {
@@ -73,6 +96,69 @@ const Closet = () => {
   const clearCategoryFilter = () => {
     setSelectedCategory(null);
     setSearchParams({});
+  };
+
+   const handleEditItem = (item) => {
+    setEditingItem(item);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = async (itemId, formData) => {
+    try {
+      const token = localStorage.getItem('ootd_authToken');
+      const response = await fetch(`http://localhost:5000/api/closet/${itemId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        // Refresh items
+        fetchClosetItems();
+        setIsEditModalOpen(false);
+        alert('הפריט עודכן בהצלחה!');
+      }
+    } catch (error) {
+      console.error('Edit error:', error);
+      alert('שגיאה בעדכון הפריט');
+    }
+  };
+
+   const handleDeleteItem = async (itemId) => {
+    try {
+      const token = localStorage.getItem('ootd_authToken');
+      const response = await fetch(`http://localhost:5000/api/closet/${itemId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        fetchClosetItems();
+        alert('הפריט נמחק בהצלחה!');
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('שגיאה במחיקת הפריט');
+    }
+  };
+
+   const handleToggleLaundry = async (itemId) => {
+    try {
+      const token = localStorage.getItem('ootd_authToken');
+      const response = await fetch(`http://localhost:5000/api/closet/${itemId}/laundry`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        fetchClosetItems();
+      }
+    } catch (error) {
+      console.error('Laundry toggle error:', error);
+    }
   };
 
   const categories = [
@@ -110,6 +196,20 @@ const Closet = () => {
           >
             <Search className="w-5 h-5" />
             המלצות לוקים
+          </button>
+          <button
+            onClick={() => navigate('/purchase-advisor')}
+            className="action-btn secondary"
+          >
+            <ShoppingBag className="w-5 h-5" />
+            יועץ קניות
+          </button>
+          <button
+            onClick={() => setIsBulkUploadOpen(true)}
+            className="action-btn secondary"
+          >
+            <FileSpreadsheet className="w-5 h-5" />
+            העלאה מרובה
           </button>
         </div>
       </header>
@@ -207,7 +307,13 @@ const Closet = () => {
       {!loading && !error && filteredItems.length > 0 && (
         <div className="closet-grid">
           {filteredItems.map((item) => (
-            <ClosetItem key={item.id} item={item} />
+            <ClosetItem
+              key={item.id}
+              item={item}
+              onEdit={handleEditItem}
+              onDelete={handleDeleteItem}
+              onToggleLaundry={handleToggleLaundry}
+            />
           ))}
         </div>
       )}
@@ -224,6 +330,33 @@ const Closet = () => {
         isOpen={isTagManagerOpen}
         onClose={() => setIsTagManagerOpen(false)}
       />
+
+      {/* Edit Item Modal */}
+      <EditItemModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        item={editingItem}
+        onSave={handleSaveEdit}
+        availableTags={allTags}
+      />
+
+      {/* Bulk Upload Modal */}
+      {isBulkUploadOpen && (
+        <div className="modal-overlay" style={{ display: 'flex', zIndex: 10000 }}>
+          <div className="modal-box" dir="rtl">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="modal-title">העלאה מרובה מ-Excel</h3>
+              <button onClick={() => setIsBulkUploadOpen(false)} className="close-btn">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <BulkUpload onComplete={() => {
+              setIsBulkUploadOpen(false);
+              fetchClosetItems();
+            }} />
+          </div>
+        </div>
+      )}
       </div>
     </Layout>
   );

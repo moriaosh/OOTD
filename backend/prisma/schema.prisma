@@ -41,6 +41,8 @@ model Clothe {
   season    String?
   occasion  String?
   notes     String?
+  inLaundry Boolean  @default(false) // Track if item is in laundry
+  isFavorite Boolean @default(false) // Track favorite items
   // ----------------------------------------
 
   // Relationship: Clothe belongs to a specific User
@@ -78,12 +80,13 @@ model ClotheTag {
 
 // Outfit Model (for saving favorite looks)
 model Outfit {
-  id        String   @id @default(uuid())
-  userId    String
-  name      String
+  id         String   @id @default(uuid())
+  userId     String
+  name       String
   // Array of Clothe IDs that compose the outfit
-  clotheIds String[]
-  createdAt DateTime @default(now())
+  clotheIds  String[]
+  isFavorite Boolean  @default(false)
+  createdAt  DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

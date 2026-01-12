@@ -12,6 +12,8 @@ import Feed from './pages/Feed';
 import Favorites from './pages/Favorites';
 import WeeklyPlanner from './pages/WeeklyPlanner';
 import ColorAnalysis from './pages/ColorAnalysis';
+import CalendarOutfits from './pages/CalendarOutfits';
+import PurchaseAdvisor from './pages/PurchaseAdvisor';
 
 function App() {
   return (
@@ -75,6 +77,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ColorAnalysis />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/calendar-outfits"
+              element={
+                <ProtectedRoute>
+                  <CalendarOutfits />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/purchase-advisor"
+              element={
+                <ProtectedRoute>
+                  <PurchaseAdvisor />
                 </ProtectedRoute>
               }
             />

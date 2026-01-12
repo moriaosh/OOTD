@@ -82,6 +82,7 @@ const calendarRoutes = require('./routes/calendar');
 const tripsRoutes = require('./routes/trips');
 const weeklyRoutes = require('./routes/weeklyRoutes');
 const colorAnalysisRoutes = require('./routes/colorAnalysis');
+const outfitRoutes = require('./routes/outfits');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/closet', closetRoutes);
@@ -92,6 +93,7 @@ app.use('/api/calendar', calendarRoutes);
 app.use('/api/trips', tripsRoutes);
 app.use('/api/weekly', weeklyRoutes);
 app.use('/api/color-analysis', colorAnalysisRoutes);
+app.use('/api/outfits', outfitRoutes);
 
 /* ===============================
    Server Start

@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { User, Mail, LogOut } from 'lucide-react';
 import Layout from '../components/Layout';
+import BackupRestore from '../components/BackupRestore';
 
 const Profile = () => {
   const { user, logout } = useAuth();
@@ -49,6 +50,15 @@ const Profile = () => {
               התנתקות
             </button>
           </div>
+        </div>
+
+        {/* Backup & Restore Section */}
+        <div className="profile-card mt-6">
+          <h3 className="text-xl font-bold text-gray-800 mb-4">גיבוי ושחזור נתונים</h3>
+          <p className="text-gray-600 mb-4 text-sm">
+            גבה את כל הנתונים שלך (פריטים, תגיות, לוקים, פוסטים ועוד) לקובץ JSON
+          </p>
+          <BackupRestore />
         </div>
 
         {showLogoutConfirm && (

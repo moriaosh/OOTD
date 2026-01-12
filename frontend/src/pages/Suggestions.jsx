@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Loader2, AlertCircle, Sparkles, MapPin, Cloud, Droplets, Wind, RefreshCw, Clock } from 'lucide-react';
+import { Loader2, AlertCircle, Sparkles, MapPin, Cloud, Droplets, Wind, RefreshCw, Clock, Heart } from 'lucide-react';
 import { closetAPI } from '../services/api';
 import ClosetItem from '../components/ClosetItem';
 import Layout from '../components/Layout';
@@ -164,6 +164,39 @@ const Suggestions = () => {
     e.preventDefault();
     if (location.trim() && !loading) {
       fetchSuggestions(location.trim());
+    }
+  };
+
+  const handleSaveOutfit = async (suggestion, index) => {
+    const outfitName = prompt('תני שם ללוק הזה:', suggestion.name || `לוק ${index + 1}`);
+
+    if (!outfitName) return;
+
+    try {
+      const clotheIds = suggestion.items.map(item => item.id);
+      const token = localStorage.getItem('ootd_authToken');
+
+      const response = await fetch('http://localhost:5000/api/outfits', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: outfitName,
+          clotheIds: clotheIds,
+          isFavorite: false
+        })
+      });
+
+      if (response.ok) {
+        alert('הלוק נשמר בהצלחה! 💖\nתוכלי לראות אותו בדף "המועדפים שלי"');
+      } else {
+        alert('שגיאה בשמירת הלוק');
+      }
+    } catch (error) {
+      console.error('Save outfit error:', error);
+      alert('שגיאה בשמירת הלוק');
     }
   };
 
@@ -335,9 +368,19 @@ const Suggestions = () => {
             {suggestions.map((suggestion, index) => (
               <div key={index} className="suggestion-card">
                 <div>
-                  <h2 className="suggestion-card-title">
-                    {suggestion.name || `לוק ${index + 1}`}
-                  </h2>
+                  <div className="flex items-start justify-between gap-4 mb-2">
+                    <h2 className="suggestion-card-title flex-1">
+                      {suggestion.name || `לוק ${index + 1}`}
+                    </h2>
+                    <button
+                      onClick={() => handleSaveOutfit(suggestion, index)}
+                      className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors flex items-center gap-2 font-medium text-sm shadow-md hover:shadow-lg"
+                      title="שמור לוק זה"
+                    >
+                      <Heart className="w-4 h-4" />
+                      שמור לוק
+                    </button>
+                  </div>
                   {suggestion.explanation && (
                     <div className="mt-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg">
                       <p className="text-sm text-blue-800 font-medium flex items-center gap-2">

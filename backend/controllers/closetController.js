@@ -66,12 +66,18 @@ const generateOutfitSuggestions = async (req, res) => {
     const enableAI = useAI === 'true';
 
     try {
-        const allClothes = await prisma.clothe.findMany({ where: { userId } });
+        // Filter out items in laundry
+        const allClothes = await prisma.clothe.findMany({
+            where: {
+                userId,
+                inLaundry: false // Exclude items in laundry
+            }
+        });
 
         if (allClothes.length < 3) {
             return res.status(200).json({
                 suggestions: [],
-                message: 'יש להעלות לפחות 3 פריטים כדי לקבל המלצה.'
+                message: 'יש להעלות לפחות 3 פריטים זמינים (שלא בכביסה) כדי לקבל המלצה.'
             });
         }
 
@@ -351,9 +357,312 @@ const wrappedAddItem = (req, res) => {
 };
 
 
+// --- 4. Update/Edit Item ---
+const updateItem = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { id } = req.params;
+        const { name, category, color, season, occasion, notes, tagIds } = req.body;
+
+        // Verify ownership
+        const item = await prisma.clothe.findUnique({ where: { id } });
+        if (!item || item.userId !== userId) {
+            return res.status(403).json({ message: 'לא מורשה לערוך פריט זה.' });
+        }
+
+        // Update item
+        const updatedItem = await prisma.clothe.update({
+            where: { id },
+            data: {
+                name: name || item.name,
+                category: category || item.category,
+                color: color || item.color,
+                season: season !== undefined ? season : item.season,
+                occasion: occasion !== undefined ? occasion : item.occasion,
+                notes: notes !== undefined ? notes : item.notes
+            },
+            include: {
+                tags: {
+                    include: {
+                        tag: true
+                    }
+                }
+            }
+        });
+
+        // Update tags if provided
+        if (tagIds && Array.isArray(tagIds)) {
+            // Delete existing tag associations
+            await prisma.clotheTag.deleteMany({ where: { clotheId: id } });
+
+            // Create new tag associations
+            if (tagIds.length > 0) {
+                await prisma.clotheTag.createMany({
+                    data: tagIds.map(tagId => ({
+                        clotheId: id,
+                        tagId: tagId
+                    }))
+                });
+            }
+        }
+
+        // Fetch updated item with tags
+        const itemWithTags = await prisma.clothe.findUnique({
+            where: { id },
+            include: {
+                tags: {
+                    include: {
+                        tag: true
+                    }
+                }
+            }
+        });
+
+        const formattedItem = {
+            ...itemWithTags,
+            tags: itemWithTags.tags.map(ct => ct.tag)
+        };
+
+        res.status(200).json({ message: 'הפריט עודכן בהצלחה!', item: formattedItem });
+    } catch (error) {
+        console.error('Update item error:', error);
+        res.status(500).json({ message: 'שגיאה בעדכון הפריט.' });
+    }
+};
+
+// --- 5. Delete Item ---
+const deleteItem = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { id } = req.params;
+
+        // Verify ownership
+        const item = await prisma.clothe.findUnique({ where: { id } });
+        if (!item || item.userId !== userId) {
+            return res.status(403).json({ message: 'לא מורשה למחוק פריט זה.' });
+        }
+
+        // Optional: Delete from Cloudinary
+        if (item.imageUrl) {
+            try {
+                // Extract public_id from Cloudinary URL
+                const urlParts = item.imageUrl.split('/');
+                const filename = urlParts[urlParts.length - 1];
+                const publicId = filename.split('.')[0];
+
+                await cloudinary.uploader.destroy(`ootd/${publicId}`);
+                console.log('Image deleted from Cloudinary:', publicId);
+            } catch (cloudinaryError) {
+                console.error('Cloudinary deletion failed (continuing anyway):', cloudinaryError);
+            }
+        }
+
+        // Delete item (tags will cascade delete automatically)
+        await prisma.clothe.delete({ where: { id } });
+
+        res.status(200).json({ message: 'הפריט נמחק בהצלחה!' });
+    } catch (error) {
+        console.error('Delete item error:', error);
+        res.status(500).json({ message: 'שגיאה במחיקת הפריט.' });
+    }
+};
+
+// --- 6. Toggle Laundry Status ---
+const toggleLaundry = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { id } = req.params;
+
+        // Verify ownership
+        const item = await prisma.clothe.findUnique({ where: { id } });
+        if (!item || item.userId !== userId) {
+            return res.status(403).json({ message: 'לא מורשה לעדכן פריט זה.' });
+        }
+
+        // Toggle laundry status
+        const updatedItem = await prisma.clothe.update({
+            where: { id },
+            data: { inLaundry: !item.inLaundry }
+        });
+
+        res.status(200).json({
+            message: updatedItem.inLaundry ? 'הפריט עבר לכביסה' : 'הפריט חזר מהכביסה',
+            item: updatedItem
+        });
+    } catch (error) {
+        console.error('Toggle laundry error:', error);
+        res.status(500).json({ message: 'שגיאה בעדכון סטטוס כביסה.' });
+    }
+};
+
+// --- 7. Backup User Data ---
+const backupUserData = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        // Fetch all user data
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            include: {
+                clothes: {
+                    include: {
+                        tags: {
+                            include: {
+                                tag: true
+                            }
+                        }
+                    }
+                },
+                tags: true,
+                outfits: true,
+                posts: true,
+                weeklyPlans: true,
+                colorAnalyses: true
+            }
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: 'משתמש לא נמצא.' });
+        }
+
+        // Remove password from backup
+        const { password, ...userWithoutPassword } = user;
+
+        // Format backup data
+        const backup = {
+            exportDate: new Date().toISOString(),
+            version: '1.0',
+            user: userWithoutPassword
+        };
+
+        res.status(200).json(backup);
+    } catch (error) {
+        console.error('Backup error:', error);
+        res.status(500).json({ message: 'שגיאה ביצירת גיבוי.' });
+    }
+};
+
+// --- 8. Bulk Upload Items (from Excel/CSV parsed data) ---
+const bulkUploadItems = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { items } = req.body; // Array of items from frontend
+
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({ message: 'לא נשלחו פריטים להעלאה.' });
+        }
+
+        const createdItems = [];
+        const errors = [];
+
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            try {
+                // Validate required fields
+                if (!item.name || !item.category || !item.color) {
+                    errors.push({ row: i + 1, error: 'שם, קטגוריה וצבע הם שדות חובה' });
+                    continue;
+                }
+
+                // Create item (without image - imageUrl will be a placeholder or empty)
+                const newItem = await prisma.clothe.create({
+                    data: {
+                        userId,
+                        name: item.name,
+                        category: item.category,
+                        color: item.color,
+                        season: item.season || null,
+                        occasion: item.occasion || null,
+                        notes: item.notes || null,
+                        imageUrl: item.imageUrl || 'https://via.placeholder.com/300x400?text=No+Image',
+                        inLaundry: false,
+                        isFavorite: false
+                    }
+                });
+
+                createdItems.push(newItem);
+            } catch (itemError) {
+                errors.push({ row: i + 1, error: itemError.message });
+            }
+        }
+
+        res.status(201).json({
+            message: `${createdItems.length} פריטים נוצרו בהצלחה!`,
+            created: createdItems.length,
+            errors: errors.length,
+            errorDetails: errors
+        });
+    } catch (error) {
+        console.error('Bulk upload error:', error);
+        res.status(500).json({ message: 'שגיאה בהעלאה מרובה.' });
+    }
+};
+
+/**
+ * Restore user data from JSON backup
+ * POST /api/closet/restore
+ */
+const restoreUserData = async (req, res) => {
+    const userId = req.user.id;
+    const { backup, replaceExisting } = req.body;
+
+    if (!backup || !backup.clothes) {
+        return res.status(400).json({ message: 'קובץ גיבוי לא תקין' });
+    }
+
+    try {
+        let restoredCount = 0;
+        const errors = [];
+
+        // If replaceExisting is true, delete all existing data first
+        if (replaceExisting) {
+            await prisma.clothe.deleteMany({ where: { userId } });
+        }
+
+        // Restore clothes
+        for (const clothe of backup.clothes) {
+            try {
+                await prisma.clothe.create({
+                    data: {
+                        userId,
+                        name: clothe.name,
+                        category: clothe.category,
+                        color: clothe.color,
+                        season: clothe.season || null,
+                        occasion: clothe.occasion || null,
+                        notes: clothe.notes || null,
+                        imageUrl: clothe.imageUrl,
+                        inLaundry: clothe.inLaundry || false,
+                        isFavorite: clothe.isFavorite || false
+                    }
+                });
+                restoredCount++;
+            } catch (error) {
+                errors.push({ item: clothe.name, error: error.message });
+            }
+        }
+
+        res.status(200).json({
+            message: `${restoredCount} פריטים שוחזרו בהצלחה!`,
+            restored: restoredCount,
+            errors: errors.length,
+            errorDetails: errors
+        });
+    } catch (error) {
+        console.error('Restore error:', error);
+        res.status(500).json({ message: 'שגיאה בשחזור הנתונים.' });
+    }
+};
+
 // ודא שכל הפונקציות מיוצאות כראוי
 module.exports = {
     addItem: wrappedAddItem,
     getMyItems,
-    generateOutfitSuggestions, // <--- הפונקציה החסרה שצריך לייצא!
+    generateOutfitSuggestions,
+    updateItem,
+    deleteItem,
+    toggleLaundry,
+    backupUserData,
+    bulkUploadItems,
+    restoreUserData
 };
