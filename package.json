@@ -1,0 +1,31 @@
+{
+  "name": "ootd-tests",
+  "version": "1.0.0",
+  "description": "OOTD E2E Test Suite using Selenium WebDriver",
+  "scripts": {
+    "test": "mocha tests/e2e/*.test.js --timeout 60000",
+    "test:core": "mocha tests/e2e/ootd.test.js --timeout 60000",
+    "test:registration": "mocha tests/e2e/registration.test.js --timeout 60000",
+    "test:items": "mocha tests/e2e/itemManagement.test.js --timeout 60000",
+    "test:backup": "mocha tests/e2e/backupRestore.test.js --timeout 60000",
+    "test:purchase": "mocha tests/e2e/purchaseAdvisor.test.js --timeout 60000",
+    "test:favorites": "mocha tests/e2e/favorites.test.js --timeout 60000",
+    "test:profile": "mocha tests/e2e/profile.test.js --timeout 60000",
+    "test:watch": "mocha tests/e2e/*.test.js --watch --timeout 60000",
+    "test:verbose": "mocha tests/e2e/*.test.js --timeout 60000 --reporter spec"
+  },
+  "keywords": [
+    "selenium",
+    "e2e",
+    "testing",
+    "ootd"
+  ],
+  "author": "Moria",
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^4.3.10",
+    "chromedriver": "^143.0.4",
+    "mocha": "^10.2.0",
+    "selenium-webdriver": "^4.16.0"
+  }
+}

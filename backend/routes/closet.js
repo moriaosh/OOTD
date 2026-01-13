@@ -12,7 +12,8 @@ const {
     toggleLaundry,
     backupUserData,
     bulkUploadItems,
-    restoreUserData
+    restoreUserData,
+    getWardrobeStatistics
 } = require('../controllers/closetController');
 
 // POST /api/closet/add-item
@@ -41,5 +42,8 @@ router.post('/bulk-upload', verifyToken, bulkUploadItems);
 
 // POST /api/closet/restore - Restore user data from JSON backup
 router.post('/restore', verifyToken, restoreUserData);
+
+// GET /api/closet/statistics - Get wardrobe statistics
+router.get('/statistics', verifyToken, getWardrobeStatistics);
 
 module.exports = router;

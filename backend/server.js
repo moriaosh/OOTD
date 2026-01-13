@@ -44,7 +44,9 @@ app.use('/api/color-analysis/analyze', aiLimiter); // AI-powered color analysis
 const corsOptions = {
   origin: [
     'http://localhost:3000',
-    'http://localhost:3001'
+    'http://localhost:3001',
+    'http://localhost:3002',
+    'http://localhost:3003'
   ],
   credentials: true
 };
@@ -102,3 +104,4 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 שרת OOTD רץ על פורט ${PORT}`);
 });
+

@@ -1,0 +1,17 @@
+{
+  "exportDate": "2026-01-13T08:40:37.413Z",
+  "version": "1.0",
+  "user": {
+    "id": "57cce6da-9e2a-4280-ba0d-1cdffc2e9df8",
+    "email": "test@ootd.com",
+    "firstName": "Test",
+    "lastName": "User",
+    "profilePicture": "/images/default-profile.png",
+    "clothes": [],
+    "tags": [],
+    "outfits": [],
+    "posts": [],
+    "weeklyPlans": [],
+    "colorAnalyses": []
+  }
+}

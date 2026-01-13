@@ -19,6 +19,7 @@ model User {
   password       String // Hashed password using bcrypt
   firstName      String?
   lastName       String?
+  profilePicture String?  @default("/images/default-profile.png") // Profile picture URL
   // One-to-many relationship: One User owns multiple Clothes
   clothes        Clothe[]
   outfits        Outfit[]

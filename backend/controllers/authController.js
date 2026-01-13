@@ -136,7 +136,79 @@ const login = async (req, res) => {
     }
 };
 
+// --- Get User Profile ---
+const getProfile = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+                profilePicture: true,
+                colorAnalyses: {
+                    orderBy: { createdAt: 'desc' },
+                    take: 1, // Get the most recent color analysis
+                    select: {
+                        season: true,
+                        skinTone: true,
+                        bestColors: true,
+                        recommendations: true,
+                        createdAt: true
+                    }
+                }
+            }
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: 'משתמש לא נמצא' });
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        console.error('Get profile error:', error);
+        res.status(500).json({ message: 'שגיאה בשליפת פרופיל' });
+    }
+};
+
+// --- Update User Profile ---
+const updateProfile = async (req, res) => {
+    const userId = req.user.id;
+    const { firstName, lastName, profilePicture } = req.body;
+
+    try {
+        const updatedUser = await prisma.user.update({
+            where: { id: userId },
+            data: {
+                firstName: firstName || undefined,
+                lastName: lastName || undefined,
+                profilePicture: profilePicture || undefined
+            },
+            select: {
+                id: true,
+                email: true,
+                firstName: true,
+                lastName: true,
+                profilePicture: true
+            }
+        });
+
+        res.status(200).json({
+            message: 'הפרופיל עודכן בהצלחה!',
+            user: updatedUser
+        });
+    } catch (error) {
+        console.error('Update profile error:', error);
+        res.status(500).json({ message: 'שגיאה בעדכון פרופיל' });
+    }
+};
+
 module.exports = {
     register,
     login,
+    getProfile,
+    updateProfile
 };

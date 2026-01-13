@@ -14,6 +14,7 @@ import WeeklyPlanner from './pages/WeeklyPlanner';
 import ColorAnalysis from './pages/ColorAnalysis';
 import CalendarOutfits from './pages/CalendarOutfits';
 import PurchaseAdvisor from './pages/PurchaseAdvisor';
+import Statistics from './pages/Statistics';
 
 function App() {
   return (
@@ -93,6 +94,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <PurchaseAdvisor />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/statistics"
+              element={
+                <ProtectedRoute>
+                  <Statistics />
                 </ProtectedRoute>
               }
             />

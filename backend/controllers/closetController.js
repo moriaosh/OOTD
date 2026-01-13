@@ -654,6 +654,93 @@ const restoreUserData = async (req, res) => {
     }
 };
 
+/**
+ * Get wardrobe statistics
+ * GET /api/closet/statistics
+ */
+const getWardrobeStatistics = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        // Get all user's clothes
+        const clothes = await prisma.clothe.findMany({
+            where: { userId },
+            select: {
+                category: true,
+                color: true,
+                season: true,
+                occasion: true,
+                inLaundry: true,
+                isFavorite: true
+            }
+        });
+
+        // Get saved outfits count
+        const outfitsCount = await prisma.outfit.count({
+            where: { userId }
+        });
+
+        const favoriteOutfitsCount = await prisma.outfit.count({
+            where: { userId, isFavorite: true }
+        });
+
+        // Calculate statistics
+        const totalItems = clothes.length;
+        const inLaundryCount = clothes.filter(c => c.inLaundry).length;
+        const favoriteItemsCount = clothes.filter(c => c.isFavorite).length;
+
+        // Category breakdown
+        const categoryStats = {};
+        clothes.forEach(item => {
+            categoryStats[item.category] = (categoryStats[item.category] || 0) + 1;
+        });
+
+        // Color breakdown
+        const colorStats = {};
+        clothes.forEach(item => {
+            colorStats[item.color] = (colorStats[item.color] || 0) + 1;
+        });
+
+        // Season breakdown
+        const seasonStats = {};
+        clothes.forEach(item => {
+            if (item.season) {
+                seasonStats[item.season] = (seasonStats[item.season] || 0) + 1;
+            }
+        });
+
+        // Occasion breakdown
+        const occasionStats = {};
+        clothes.forEach(item => {
+            if (item.occasion) {
+                occasionStats[item.occasion] = (occasionStats[item.occasion] || 0) + 1;
+            }
+        });
+
+        // Sort colors by frequency
+        const sortedColors = Object.entries(colorStats)
+            .sort((a, b) => b[1] - a[1])
+            .map(([color, count]) => ({ color, count }));
+
+        res.status(200).json({
+            totalItems,
+            inLaundryCount,
+            favoriteItemsCount,
+            outfitsCount,
+            favoriteOutfitsCount,
+            categoryStats,
+            colorStats: sortedColors,
+            seasonStats,
+            occasionStats,
+            availableItems: totalItems - inLaundryCount
+        });
+
+    } catch (error) {
+        console.error('Get statistics error:', error);
+        res.status(500).json({ message: 'שגיאה בשליפת סטטיסטיקות' });
+    }
+};
+
 // ודא שכל הפונקציות מיוצאות כראוי
 module.exports = {
     addItem: wrappedAddItem,
@@ -664,5 +751,6 @@ module.exports = {
     toggleLaundry,
     backupUserData,
     bulkUploadItems,
-    restoreUserData
+    restoreUserData,
+    getWardrobeStatistics
 };

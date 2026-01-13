@@ -1,0 +1,407 @@
+/* ========================================
+   RESPONSIVE STYLES FOR MOBILE & TABLET
+   ======================================== */
+
+/* Base adjustments for smaller screens */
+@media (max-width: 768px) {
+    /* Adjust main content padding to account for fixed header/nav */
+    main {
+        padding-top: 140px !important;
+    }
+
+    /* Header responsive */
+    .site-header {
+        height: 70px;
+        background-size: auto 50px;
+        z-index: 8000 !important;
+    }
+
+    .top-nav {
+        top: 70px;
+        height: auto;
+        min-height: 50px;
+    }
+
+    /* Ensure menu works on mobile */
+    .nav-links {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .nav-links a,
+    .nav-links button {
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    /* Hero section */
+    .hero-title {
+        font-size: 36px;
+    }
+
+    .hero-subtitle {
+        font-size: 14px;
+    }
+
+    /* Profile page */
+    .profile-container {
+        padding: 10px;
+    }
+
+    .profile-wrapper {
+        padding: 0;
+    }
+
+    .profile-card {
+        padding: 20px 15px;
+    }
+
+    .profile-header {
+        margin-bottom: 20px;
+    }
+
+    .profile-title {
+        font-size: 24px;
+    }
+
+    .profile-info {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+
+    .profile-avatar {
+        margin: 0 auto;
+    }
+
+    .profile-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .profile-actions button {
+        width: 100%;
+    }
+
+    /* Closet page */
+    .closet-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px;
+    }
+
+    .closet-item {
+        width: 100%;
+    }
+
+    .closet-controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .closet-controls input,
+    .closet-controls select,
+    .closet-controls button {
+        width: 100%;
+    }
+
+    /* Statistics page */
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Forms */
+    .login-box,
+    .register-box {
+        width: 95%;
+        padding: 25px 15px;
+        margin-top: 120px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="url"],
+    select,
+    textarea {
+        font-size: 16px; /* Prevents iOS zoom on focus */
+        padding: 12px;
+    }
+
+    /* Buttons */
+    button {
+        min-height: 44px; /* Better tap target */
+        font-size: 16px;
+    }
+
+    /* Modal dialogs */
+    .modal-box {
+        width: 90%;
+        max-width: 400px;
+        padding: 20px;
+    }
+
+    .modal-title {
+        font-size: 20px;
+    }
+
+    /* Feed/Posts */
+    .feed-container {
+        padding: 10px;
+    }
+
+    .post-card {
+        margin-bottom: 15px;
+        border-radius: 12px;
+    }
+
+    .post-image {
+        max-height: 400px;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .post-content {
+        padding: 15px;
+    }
+
+    .post-actions {
+        padding: 10px 15px;
+        gap: 8px;
+    }
+
+    .post-header {
+        padding: 12px 15px;
+    }
+
+    /* Home page hero */
+    .home-container {
+        padding: 15px;
+        margin-top: 140px;
+    }
+
+    .hero-section {
+        padding: 30px 15px;
+    }
+
+    .cta-buttons {
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .cta-buttons button,
+    .cta-buttons a {
+        width: 100%;
+    }
+
+    /* Favorites grid */
+    .favorites-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px;
+    }
+
+    /* Suggestions page */
+    .suggestions-container {
+        padding: 10px;
+    }
+
+    .outfit-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Weekly Planner */
+    .planner-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .day-card {
+        min-height: auto;
+    }
+
+    /* Color Analysis */
+    .color-analysis-container {
+        padding: 10px;
+    }
+
+    .color-palette {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+
+    /* Backup/Restore */
+    .backup-restore-container {
+        padding: 15px;
+    }
+
+    /* Image uploads */
+    .image-preview {
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* Tags */
+    .tag-container {
+        gap: 6px;
+    }
+
+    .tag {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+}
+
+/* Tablet specific adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+    main {
+        padding-top: 160px;
+    }
+
+    /* Two column grid for tablets */
+    .closet-grid,
+    .favorites-grid,
+    .outfit-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .planner-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .color-palette {
+        grid-template-columns: repeat(6, 1fr) !important;
+    }
+
+    .profile-container {
+        padding: 15px;
+    }
+
+    .login-box,
+    .register-box {
+        max-width: 500px;
+    }
+}
+
+/* Extra small devices (phones in portrait) */
+@media (max-width: 375px) {
+    .hero-title {
+        font-size: 28px;
+    }
+
+    .nav-links a {
+        font-size: 14px;
+        padding: 12px 16px;
+    }
+
+    .profile-card,
+    .closet-item,
+    .post-card {
+        padding: 15px;
+    }
+
+    .color-palette {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+}
+
+/* Landscape mode for phones */
+@media (max-height: 500px) and (orientation: landscape) {
+    .site-header {
+        height: 60px;
+        background-size: auto 40px;
+    }
+
+    .top-nav {
+        top: 60px;
+        padding: 6px 0;
+    }
+
+    .mobile-menu-btn {
+        padding: 6px;
+    }
+
+    .nav-links {
+        top: 110px;
+    }
+
+    main {
+        padding-top: 120px !important;
+    }
+}
+
+/* Ensure touch-friendly spacing */
+@media (hover: none) and (pointer: coarse) {
+    /* Touch device specific styles */
+    button,
+    a,
+    input[type="submit"] {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .closet-item-actions button {
+        padding: 10px;
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    /* Better touch feedback */
+    button:active,
+    a:active {
+        opacity: 0.7;
+        transform: scale(0.98);
+    }
+
+    /* Improve scrolling on iOS */
+    * {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Safe area for notched devices (iPhone X and later) */
+@supports (padding: max(0px)) {
+    body {
+        padding-left: max(0px, env(safe-area-inset-left));
+        padding-right: max(0px, env(safe-area-inset-right));
+    }
+
+    .top-nav,
+    .site-header {
+        padding-left: max(20px, env(safe-area-inset-left));
+        padding-right: max(20px, env(safe-area-inset-right));
+    }
+}
+
+/* Prevent text selection on buttons and navigation on mobile */
+@media (max-width: 768px) {
+    button,
+    .nav-links a,
+    .mobile-menu-btn {
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+        -webkit-touch-callout: none;
+        user-select: none;
+    }
+
+    /* Better form controls on mobile */
+    input,
+    textarea,
+    select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+    /* Prevent zoom on input focus for iOS */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="tel"],
+    textarea {
+        font-size: 16px !important;
+    }
+}
