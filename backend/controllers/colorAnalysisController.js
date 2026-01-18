@@ -104,8 +104,7 @@ exports.analyzeColors = async (req, res) => {
       console.error('Failed to parse Gemini response:', parseError);
       return res.status(500).json({
         success: false,
-        message: 'Failed to parse AI response',
-        error: parseError.message
+        message: 'שגיאה בעיבוד תשובת הבינה המלאכותית. נסי שוב.'
       });
     }
 
@@ -145,8 +144,7 @@ exports.analyzeColors = async (req, res) => {
     console.error('Color analysis error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to analyze colors',
-      error: error.message
+      message: 'שגיאה בניתוח הצבעים. נסי שוב.'
     });
   }
 };
@@ -176,8 +174,7 @@ exports.getMyAnalyses = async (req, res) => {
     console.error('Get analyses error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch analyses',
-      error: error.message
+      message: 'שגיאה בטעינת הניתוחים.'
     });
   }
 };
@@ -214,8 +211,7 @@ exports.getLatestAnalysis = async (req, res) => {
     console.error('Get latest analysis error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch latest analysis',
-      error: error.message
+      message: 'שגיאה בטעינת הניתוח האחרון.'
     });
   }
 };
@@ -258,8 +254,7 @@ exports.deleteAnalysis = async (req, res) => {
     console.error('Delete analysis error:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to delete analysis',
-      error: error.message
+      message: 'שגיאה במחיקת הניתוח.'
     });
   }
 };

@@ -44,7 +44,7 @@ const WeeklyPlanner = () => {
         sunday.setDate(today.getDate() - dayOfWeek);
         sunday.setHours(0, 0, 0, 0);
 
-        const response = await fetch(`http://localhost:5000/api/weekly?date=${sunday.toISOString()}`, {
+        const response = await fetch(`/api/weekly?date=${sunday.toISOString()}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -128,7 +128,7 @@ const WeeklyPlanner = () => {
         }
       });
 
-      await fetch('http://localhost:5000/api/weekly/save', {
+      await fetch('/api/weekly/save', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

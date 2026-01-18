@@ -1,12 +1,44 @@
   import { useState } from 'react';
-  import { FileSpreadsheet, Upload } from 'lucide-react';
+  import { FileSpreadsheet, Upload, AlertCircle } from 'lucide-react';
   import * as XLSX from 'xlsx';
 
   const BulkUpload = ({ onComplete }) => {
     const [file, setFile] = useState(null);
+    const [fileError, setFileError] = useState(null);
 
     const handleFileChange = (e) => {
-      setFile(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      setFileError(null);
+
+      if (selectedFile) {
+        // Validate file type - only allow Excel and CSV files
+        const allowedExtensions = ['.xlsx', '.xls', '.csv'];
+        const allowedTypes = [
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+          'application/vnd.ms-excel', // .xls
+          'text/csv', // .csv
+          'application/csv'
+        ];
+
+        const fileName = selectedFile.name.toLowerCase();
+        const hasValidExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
+        const hasValidType = allowedTypes.includes(selectedFile.type);
+
+        if (!hasValidExtension && !hasValidType) {
+          setFileError('קובץ לא תקין. רק קבצי Excel (xlsx, xls) או CSV מותרים.');
+          setFile(null);
+          e.target.value = '';
+          return;
+        }
+        // Validate file size (max 5MB)
+        if (selectedFile.size > 5 * 1024 * 1024) {
+          setFileError('גודל הקובץ גדול מדי. אנא בחר/י קובץ עד 5MB.');
+          setFile(null);
+          e.target.value = '';
+          return;
+        }
+        setFile(selectedFile);
+      }
     };
 
     const handleUpload = async () => {
@@ -30,7 +62,7 @@
         }));
 
         const token = localStorage.getItem('ootd_authToken');
-        const response = await fetch('http://localhost:5000/api/closet/bulk-upload', {
+        const response = await fetch('/api/closet/bulk-upload', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -52,7 +84,13 @@
     return (
       <div className="p-4 bg-white rounded-lg shadow">
         <h3 className="text-lg font-bold mb-4">העלאה מרובה מ-Excel</h3>
-        <input type="file" accept=".xlsx,.xls,.csv" onChange={handleFileChange} className="mb-4" />
+        <input type="file" accept=".xlsx,.xls,.csv" onChange={handleFileChange} className="mb-2" />
+        {fileError && (
+          <div className="flex items-center gap-2 text-red-600 text-sm mb-4">
+            <AlertCircle className="w-4 h-4" />
+            <span>{fileError}</span>
+          </div>
+        )}
         <button
           onClick={handleUpload}
           disabled={!file}

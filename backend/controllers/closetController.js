@@ -606,7 +606,10 @@ const restoreUserData = async (req, res) => {
     const userId = req.user.id;
     const { backup, replaceExisting } = req.body;
 
-    if (!backup || !backup.clothes) {
+    // Support both formats: backup.clothes (old) and backup.user.clothes (new)
+    const clothes = backup?.clothes || backup?.user?.clothes;
+
+    if (!backup || !clothes) {
         return res.status(400).json({ message: 'קובץ גיבוי לא תקין' });
     }
 
@@ -620,7 +623,7 @@ const restoreUserData = async (req, res) => {
         }
 
         // Restore clothes
-        for (const clothe of backup.clothes) {
+        for (const clothe of clothes) {
             try {
                 await prisma.clothe.create({
                     data: {
@@ -651,6 +654,85 @@ const restoreUserData = async (req, res) => {
     } catch (error) {
         console.error('Restore error:', error);
         res.status(500).json({ message: 'שגיאה בשחזור הנתונים.' });
+    }
+};
+
+/**
+ * Get cached weather suggestion
+ * GET /api/closet/cached-suggestion
+ */
+const getCachedSuggestion = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        const cached = await prisma.cachedWeatherSuggestion.findUnique({
+            where: { userId }
+        });
+
+        if (!cached) {
+            return res.status(200).json({ cached: null });
+        }
+
+        res.status(200).json({ cached });
+    } catch (error) {
+        console.error('Get cached suggestion error:', error);
+        res.status(500).json({ message: 'שגיאה בטעינת ההמלצה השמורה.' });
+    }
+};
+
+/**
+ * Save cached weather suggestion (replaces existing)
+ * POST /api/closet/cached-suggestion
+ */
+const saveCachedSuggestion = async (req, res) => {
+    const userId = req.user.id;
+    const { location, weatherData, suggestion } = req.body;
+
+    if (!location || !suggestion) {
+        return res.status(400).json({ message: 'חסרים נתונים לשמירה.' });
+    }
+
+    try {
+        // Upsert: delete existing and create new
+        const cached = await prisma.cachedWeatherSuggestion.upsert({
+            where: { userId },
+            update: {
+                location,
+                weatherData: weatherData || {},
+                suggestion,
+                createdAt: new Date()
+            },
+            create: {
+                userId,
+                location,
+                weatherData: weatherData || {},
+                suggestion
+            }
+        });
+
+        res.status(200).json({ message: 'ההמלצה נשמרה בהצלחה!', cached });
+    } catch (error) {
+        console.error('Save cached suggestion error:', error);
+        res.status(500).json({ message: 'שגיאה בשמירת ההמלצה.' });
+    }
+};
+
+/**
+ * Delete cached weather suggestion
+ * DELETE /api/closet/cached-suggestion
+ */
+const deleteCachedSuggestion = async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+        await prisma.cachedWeatherSuggestion.deleteMany({
+            where: { userId }
+        });
+
+        res.status(200).json({ message: 'ההמלצה נמחקה בהצלחה.' });
+    } catch (error) {
+        console.error('Delete cached suggestion error:', error);
+        res.status(500).json({ message: 'שגיאה במחיקת ההמלצה.' });
     }
 };
 
@@ -752,5 +834,8 @@ module.exports = {
     backupUserData,
     bulkUploadItems,
     restoreUserData,
-    getWardrobeStatistics
+    getWardrobeStatistics,
+    getCachedSuggestion,
+    saveCachedSuggestion,
+    deleteCachedSuggestion
 };

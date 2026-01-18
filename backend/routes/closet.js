@@ -13,7 +13,10 @@ const {
     backupUserData,
     bulkUploadItems,
     restoreUserData,
-    getWardrobeStatistics
+    getWardrobeStatistics,
+    getCachedSuggestion,
+    saveCachedSuggestion,
+    deleteCachedSuggestion
 } = require('../controllers/closetController');
 
 // POST /api/closet/add-item
@@ -45,5 +48,15 @@ router.post('/restore', verifyToken, restoreUserData);
 
 // GET /api/closet/statistics - Get wardrobe statistics
 router.get('/statistics', verifyToken, getWardrobeStatistics);
+
+// Cached AI Suggestion routes
+// GET /api/closet/cached-suggestion - Get cached weather suggestion
+router.get('/cached-suggestion', verifyToken, getCachedSuggestion);
+
+// POST /api/closet/cached-suggestion - Save cached weather suggestion
+router.post('/cached-suggestion', verifyToken, saveCachedSuggestion);
+
+// DELETE /api/closet/cached-suggestion - Delete cached weather suggestion
+router.delete('/cached-suggestion', verifyToken, deleteCachedSuggestion);
 
 module.exports = router;

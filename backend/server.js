@@ -10,6 +10,9 @@ dotenv.config();
 
 const app = express();
 
+// Trust proxy when behind nginx/reverse proxy (required for rate limiting and HTTPS detection)
+app.set('trust proxy', 1);
+
 /* ===============================
    אבטחה כללית
 ================================ */
@@ -41,13 +44,22 @@ app.use('/api/color-analysis/analyze', aiLimiter); // AI-powered color analysis
 /* ===============================
    CORS
 ================================ */
+// Build allowed origins list from environment variable + localhost for development
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
+  'http://localhost:3003'
+];
+
+// Add production domain from environment variable if set
+// In .env add: FRONTEND_URL=https://your-domain.com
+if (process.env.FRONTEND_URL) {
+  allowedOrigins.push(process.env.FRONTEND_URL);
+}
+
 const corsOptions = {
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://localhost:3002',
-    'http://localhost:3003'
-  ],
+  origin: allowedOrigins,
   credentials: true
 };
 
@@ -57,9 +69,12 @@ app.use(cors(corsOptions));
 /* ===============================
    HTTPS enforcement (Production)
 ================================ */
+// Skip HTTPS redirect when behind a trusted proxy (like nginx in Docker)
+// Set TRUST_PROXY=true in environment to disable redirect
 app.use((req, res, next) => {
   if (
     process.env.NODE_ENV === 'production' &&
+    process.env.TRUST_PROXY !== 'true' &&
     req.headers['x-forwarded-proto'] !== 'https'
   ) {
     return res.redirect(`https://${req.headers.host}${req.url}`);
@@ -101,7 +116,8 @@ app.use('/api/outfits', outfitRoutes);
    Server Start
 ================================ */
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const HOST = '0.0.0.0'; // Bind to all IPv4 interfaces (required for Docker)
+app.listen(PORT, HOST, () => {
   console.log(`🚀 שרת OOTD רץ על פורט ${PORT}`);
 });
 

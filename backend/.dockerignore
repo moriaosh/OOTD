@@ -1,0 +1,38 @@
+# Dependencies
+node_modules
+
+# Environment files (will be injected via docker-compose)
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+tests
+*.test.js
+coverage
+
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Prisma migrations (keep schema, exclude migrations for fresh start)
+# prisma/migrations

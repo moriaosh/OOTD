@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 const getCalendarRecommendation = async (req, res) => {
   try {
-    const userId = req.user?.id || 1; // ← חשוב!!
+    const userId = req.user.id; // Now properly authenticated via verifyToken middleware
     const { date, event, location, weather } = req.body;
 
     if (!date || !event) {

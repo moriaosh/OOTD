@@ -32,7 +32,7 @@ const ColorAnalysis = () => {
   const fetchLatestAnalysis = async () => {
     try {
       const token = localStorage.getItem('ootd_authToken');
-      const response = await fetch('http://localhost:5000/api/color-analysis/latest', {
+      const response = await fetch('/api/color-analysis/latest', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -50,6 +50,19 @@ const ColorAnalysis = () => {
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Validate file type - only allow images
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        setError('קובץ לא תקין. רק תמונות JPEG, PNG, WebP, GIF מותרות.');
+        e.target.value = '';
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('גודל הקובץ גדול מדי. אנא בחר/י תמונה עד 5MB.');
+        e.target.value = '';
+        return;
+      }
       setSelectedImage(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -113,7 +126,7 @@ const ColorAnalysis = () => {
       formData.append('image', selectedImage);
 
       const token = localStorage.getItem('ootd_authToken');
-      const response = await fetch('http://localhost:5000/api/color-analysis/analyze', {
+      const response = await fetch('/api/color-analysis/analyze', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

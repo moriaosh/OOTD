@@ -85,24 +85,21 @@ const analyzePurchase = async (req, res) => {
   } catch (error) {
     console.error('Purchase analysis error:', error);
 
-    // Handle specific errors
+    // Handle specific errors with user-friendly messages (no internal details)
     if (error.message.includes('Failed to fetch image')) {
       return res.status(400).json({
-        message: 'לא ניתן לטעון את התמונה. ודאי שהקישור תקין.',
-        error: error.message
+        message: 'לא ניתן לטעון את התמונה. ודאי שהקישור תקין.'
       });
     }
 
     if (error.message.includes('Gemini API key not configured')) {
       return res.status(503).json({
-        message: 'שירות ניתוח הקניות אינו זמין כרגע.',
-        error: 'AI service unavailable'
+        message: 'שירות ניתוח הקניות אינו זמין כרגע.'
       });
     }
 
     res.status(500).json({
-      message: 'שגיאה בניתוח הקנייה.',
-      error: error.message
+      message: 'שגיאה בניתוח הקנייה.'
     });
   }
 };

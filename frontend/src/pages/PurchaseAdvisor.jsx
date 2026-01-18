@@ -24,7 +24,7 @@ const PurchaseAdvisor = () => {
 
     try {
       const token = localStorage.getItem('ootd_authToken');
-      const response = await fetch('http://localhost:5000/api/purchase/analyze', {
+      const response = await fetch('/api/purchase/analyze', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 // Helper function to get auth token
 const getAuthToken = () => {
@@ -106,6 +106,8 @@ export const authAPI = {
   },
 
   logout: () => {
+    // AI suggestions are now stored in the database, not localStorage
+    // So we only need to clear auth tokens
     localStorage.removeItem('ootd_authToken');
     localStorage.removeItem('ootd_currentUser');
   },

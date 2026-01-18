@@ -4,15 +4,8 @@ import { closetAPI } from '../services/api';
 import ClosetItem from '../components/ClosetItem';
 import Layout from '../components/Layout';
 
-// Cache keys
-const CACHE_KEYS = {
-  SUGGESTIONS: 'ootd_cached_suggestions',
-  LOCATION: 'ootd_last_location',
-  TIMESTAMP: 'ootd_suggestions_timestamp'
-};
-
-// NO CACHE EXPIRATION - Save tokens by keeping suggestions until manual refresh!
-// User can click "Refresh" button to regenerate with new AI call
+// Helper to get auth token
+const getAuthToken = () => localStorage.getItem('ootd_authToken');
 
 const Suggestions = () => {
   const [suggestions, setSuggestions] = useState([]);
@@ -30,8 +23,10 @@ const Suggestions = () => {
 
   // Format cache timestamp for display
   const formatCacheTime = (timestamp) => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
     const now = Date.now();
-    const diff = now - timestamp;
+    const diff = now - date.getTime();
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
@@ -40,64 +35,89 @@ const Suggestions = () => {
     if (minutes < 60) return `לפני ${minutes} דקות`;
     if (hours < 24) return `לפני ${hours} שעות`;
     if (days < 7) return `לפני ${days} ימים`;
-    return new Date(timestamp).toLocaleDateString('he-IL');
+    return date.toLocaleDateString('he-IL');
   };
 
-  // Check if cache exists (NO time limit - save tokens!)
-  const isCacheValid = () => {
-    const cachedData = localStorage.getItem(CACHE_KEYS.SUGGESTIONS);
-    return !!cachedData;
-  };
-
-  // Load from cache
-  const loadFromCache = () => {
+  // Load cached suggestion from database
+  const loadFromCache = async () => {
     try {
-      const cachedData = localStorage.getItem(CACHE_KEYS.SUGGESTIONS);
-      const cachedLocation = localStorage.getItem(CACHE_KEYS.LOCATION);
-      const timestamp = localStorage.getItem(CACHE_KEYS.TIMESTAMP);
+      const token = getAuthToken();
+      if (!token) return false;
 
-      if (cachedData && isCacheValid()) {
-        const data = JSON.parse(cachedData);
-        setSuggestions(data.suggestions || []);
-        setWeather(data.weather || null);
-        setWeatherMessage(data.weatherMessage || null);
-        setHelpMessage(data.message || null);
-        setUsingAI(data.usingAI || false);
-        setLocation(cachedLocation || 'Jerusalem,IL');
-        setIsFromCache(true);
-        setCacheTimestamp(timestamp ? parseInt(timestamp) : null);
-        return true;
+      const response = await fetch('/api/closet/cached-suggestion', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.cached) {
+          const cachedSuggestion = data.cached.suggestion;
+          setSuggestions(cachedSuggestion.suggestions || []);
+          setWeather(cachedSuggestion.weather || null);
+          setWeatherMessage(cachedSuggestion.weatherMessage || null);
+          setHelpMessage(cachedSuggestion.message || null);
+          setUsingAI(cachedSuggestion.usingAI || false);
+          setLocation(data.cached.location || 'Jerusalem,IL');
+          setIsFromCache(true);
+          setCacheTimestamp(data.cached.createdAt);
+          return true;
+        }
       }
       return false;
     } catch (err) {
-      console.error('Error loading cache:', err);
+      console.error('Error loading cache from database:', err);
       return false;
     }
   };
 
-  // Save to cache
-  const saveToCache = (data, cityName) => {
+  // Save suggestion to database cache
+  const saveToCache = async (data, cityName) => {
     try {
-      localStorage.setItem(CACHE_KEYS.SUGGESTIONS, JSON.stringify(data));
-      localStorage.setItem(CACHE_KEYS.LOCATION, cityName);
-      localStorage.setItem(CACHE_KEYS.TIMESTAMP, Date.now().toString());
+      const token = getAuthToken();
+      if (!token) return;
+
+      await fetch('/api/closet/cached-suggestion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          location: cityName,
+          weatherData: data.weather || {},
+          suggestion: data
+        })
+      });
     } catch (err) {
-      console.error('Error saving cache:', err);
+      console.error('Error saving cache to database:', err);
     }
   };
 
   const fetchCalendarRecommendation = async () => {
-  try {
-    const response = await api.post('/calendar/recommendations', {
-      date: new Date().toISOString()
-    });
+    try {
+      const token = localStorage.getItem('ootd_authToken');
+      const response = await fetch('/api/calendar/recommendations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          date: new Date().toISOString()
+        })
+      });
 
-    setCalendarEvent(response.data || null);
-  } catch (err) {
-    console.error('Calendar recommendation error:', err);
-    setCalendarEvent(null);
-  }
-};
+      if (response.ok) {
+        const data = await response.json();
+        setCalendarEvent(data || null);
+      } else {
+        setCalendarEvent(null);
+      }
+    } catch (err) {
+      console.error('Calendar recommendation error:', err);
+      setCalendarEvent(null);
+    }
+  };
 
 
   const fetchSuggestions = async (cityName = null, forceRefresh = false) => {
@@ -122,8 +142,9 @@ const Suggestions = () => {
       setHelpMessage(data.message || null);
       setUsingAI(data.usingAI || false);
 
-      // Save to cache
-      saveToCache(data, cityName || 'Jerusalem,IL');
+      // Save to database cache
+      await saveToCache(data, cityName || 'Jerusalem,IL');
+      setCacheTimestamp(new Date().toISOString());
 
     } catch (err) {
       if (err.name === 'AbortError') {
@@ -138,19 +159,22 @@ const Suggestions = () => {
   };
 
   useEffect(() => {
-    // Try to load from cache first
-    const loaded = loadFromCache();
+    const initializeSuggestions = async () => {
+      // Try to load from database cache first
+      const loaded = await loadFromCache();
 
       if (!loaded) {
-      const defaultCity = 'Jerusalem,IL';
-      setLocation(defaultCity);
-      fetchSuggestions(defaultCity);
-      fetchCalendarRecommendation();
-    } else {
-      setLoading(false);
-      fetchCalendarRecommendation();
-    }
+        const defaultCity = 'Jerusalem,IL';
+        setLocation(defaultCity);
+        await fetchSuggestions(defaultCity);
+      } else {
+        setLoading(false);
+      }
 
+      fetchCalendarRecommendation();
+    };
+
+    initializeSuggestions();
 
     // Cleanup on unmount
     return () => {
@@ -176,7 +200,7 @@ const Suggestions = () => {
       const clotheIds = suggestion.items.map(item => item.id);
       const token = localStorage.getItem('ootd_authToken');
 
-      const response = await fetch('http://localhost:5000/api/outfits', {
+      const response = await fetch('/api/outfits', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,16 +1,11 @@
 import { useState, useEffect } from 'react';
 import { X, Loader2, Plus, Minus, Check, AlertCircle, Plane, Calendar, MapPin, Activity, Backpack, RefreshCw, Clock } from 'lucide-react';
 
-// Cache keys - NO EXPIRATION! Save tokens by keeping trip suggestions until manual refresh
-const CACHE_KEYS = {
-  PACKING_LIST: 'ootd_cached_packing_list',
-  TRIP_DATA: 'ootd_cached_trip_data',
-  FORM_DATA: 'ootd_trip_form_data',
-  QUANTITIES: 'ootd_trip_quantities',
-  TIMESTAMP: 'ootd_trip_timestamp'
-};
+// Helper to get auth token
+const getAuthToken = () => localStorage.getItem('ootd_authToken');
 
 const TripPlannerModal = ({ isOpen, onClose }) => {
+
   const [step, setStep] = useState('form'); // 'form' | 'loading' | 'result'
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -50,8 +45,10 @@ const TripPlannerModal = ({ isOpen, onClose }) => {
 
   // Format cache timestamp for display
   const formatCacheTime = (timestamp) => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
     const now = Date.now();
-    const diff = now - timestamp;
+    const diff = now - date.getTime();
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
@@ -60,69 +57,93 @@ const TripPlannerModal = ({ isOpen, onClose }) => {
     if (minutes < 60) return `לפני ${minutes} דקות`;
     if (hours < 24) return `לפני ${hours} שעות`;
     if (days < 7) return `לפני ${days} ימים`;
-    return new Date(timestamp).toLocaleDateString('he-IL');
+    return date.toLocaleDateString('he-IL');
   };
 
-  // Check if cache exists (NO time limit - save tokens!)
-  const isCacheValid = () => {
-    const cachedPackingList = localStorage.getItem(CACHE_KEYS.PACKING_LIST);
-    return !!cachedPackingList;
-  };
-
-  // Load from cache
-  const loadFromCache = () => {
+  // Load cached packing list from database
+  const loadFromCache = async () => {
     try {
-      const cachedPackingList = localStorage.getItem(CACHE_KEYS.PACKING_LIST);
-      const cachedTripData = localStorage.getItem(CACHE_KEYS.TRIP_DATA);
-      const cachedFormData = localStorage.getItem(CACHE_KEYS.FORM_DATA);
-      const cachedQuantities = localStorage.getItem(CACHE_KEYS.QUANTITIES);
-      const timestamp = localStorage.getItem(CACHE_KEYS.TIMESTAMP);
+      const token = getAuthToken();
+      if (!token) return false;
 
-      if (cachedPackingList && isCacheValid()) {
-        setPackingList(JSON.parse(cachedPackingList));
-        setTripData(JSON.parse(cachedTripData));
-        setItemQuantities(JSON.parse(cachedQuantities));
+      const response = await fetch('/api/trips/cached-packing', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
 
-        const formData = JSON.parse(cachedFormData);
-        setDestination(formData.destination);
-        setStartDate(formData.startDate);
-        setEndDate(formData.endDate);
-        setActivities(formData.activities);
-        setPackingStyle(formData.packingStyle);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.cached) {
+          const cached = data.cached;
+          setPackingList(cached.packingList);
+          setTripData(cached.tripData);
 
-        setIsFromCache(true);
-        setCacheTimestamp(timestamp ? parseInt(timestamp) : null);
-        setStep('result');
-        return true;
+          // Restore form data
+          setDestination(cached.destination);
+          setStartDate(cached.startDate.split('T')[0]);
+          setEndDate(cached.endDate.split('T')[0]);
+          setActivities(cached.activities || []);
+
+          // Initialize quantities from packing list
+          const quantities = {};
+          if (cached.packingList?.categories) {
+            cached.packingList.categories.forEach(cat => {
+              cat.items.forEach(item => {
+                quantities[`${cat.name}-${item.name}`] = item.quantity || 1;
+              });
+            });
+          }
+          setItemQuantities(quantities);
+
+          setIsFromCache(true);
+          setCacheTimestamp(cached.createdAt);
+          setStep('result');
+          return true;
+        }
       }
       return false;
     } catch (err) {
-      console.error('Error loading cache:', err);
+      console.error('Error loading cache from database:', err);
       return false;
     }
   };
 
-  // Save to cache
-  const saveToCache = (packingListData, tripDataObj, formData, quantities) => {
+  // Save packing list to database cache
+  const saveToCache = async (packingListData, tripDataObj, formData) => {
     try {
-      localStorage.setItem(CACHE_KEYS.PACKING_LIST, JSON.stringify(packingListData));
-      localStorage.setItem(CACHE_KEYS.TRIP_DATA, JSON.stringify(tripDataObj));
-      localStorage.setItem(CACHE_KEYS.FORM_DATA, JSON.stringify(formData));
-      localStorage.setItem(CACHE_KEYS.QUANTITIES, JSON.stringify(quantities));
-      localStorage.setItem(CACHE_KEYS.TIMESTAMP, Date.now().toString());
+      const token = getAuthToken();
+      if (!token) return;
+
+      await fetch('/api/trips/cached-packing', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          destination: formData.destination,
+          startDate: formData.startDate,
+          endDate: formData.endDate,
+          activities: formData.activities,
+          tripType: formData.packingStyle,
+          packingList: packingListData,
+          tripData: tripDataObj
+        })
+      });
     } catch (err) {
-      console.error('Error saving cache:', err);
+      console.error('Error saving cache to database:', err);
     }
   };
 
-  // Clear cache
-  const clearCache = () => {
+  // Clear cache from database
+  const clearCache = async () => {
     try {
-      localStorage.removeItem(CACHE_KEYS.PACKING_LIST);
-      localStorage.removeItem(CACHE_KEYS.TRIP_DATA);
-      localStorage.removeItem(CACHE_KEYS.FORM_DATA);
-      localStorage.removeItem(CACHE_KEYS.QUANTITIES);
-      localStorage.removeItem(CACHE_KEYS.TIMESTAMP);
+      const token = getAuthToken();
+      if (!token) return;
+
+      await fetch('/api/trips/cached-packing', {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
     } catch (err) {
       console.error('Error clearing cache:', err);
     }
@@ -175,7 +196,7 @@ const TripPlannerModal = ({ isOpen, onClose }) => {
 
     try {
       const token = localStorage.getItem('ootd_authToken');
-      const response = await fetch('http://localhost:5000/api/trips/generate', {
+      const response = await fetch('/api/trips/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -208,11 +229,11 @@ const TripPlannerModal = ({ isOpen, onClose }) => {
       });
       setItemQuantities(quantities);
 
-      // Save to cache
+      // Save to database cache
       const formData = { destination, startDate, endDate, activities, packingStyle };
-      saveToCache(data.packingList, data, formData, quantities);
+      await saveToCache(data.packingList, data, formData);
       setIsFromCache(false);
-      setCacheTimestamp(Date.now());
+      setCacheTimestamp(new Date().toISOString());
 
       setStep('result');
     } catch (err) {
@@ -232,7 +253,7 @@ const TripPlannerModal = ({ isOpen, onClose }) => {
     }));
   };
 
-  const resetModal = () => {
+  const resetModal = async () => {
     setStep('form');
     setDestination('');
     setStartDate('');
@@ -244,7 +265,7 @@ const TripPlannerModal = ({ isOpen, onClose }) => {
     setError(null);
     setIsFromCache(false);
     setCacheTimestamp(null);
-    clearCache();
+    await clearCache();
   };
 
   const handleRefresh = () => {

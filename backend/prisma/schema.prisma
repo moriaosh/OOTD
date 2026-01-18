@@ -28,6 +28,8 @@ model User {
   trips          TripPlan[] // User's packing lists for trips
   weeklyPlans    WeeklyPlan[] // User's weekly outfit plans
   colorAnalyses  ColorAnalysis[] // User's color analysis results
+  cachedWeatherSuggestion CachedWeatherSuggestion? // Cached AI weather suggestion
+  cachedTripPacking       CachedTripPacking?       // Cached AI trip packing suggestion
 }
 
 // Clothing Item Model (Task 3)
@@ -184,4 +186,32 @@ model ColorAnalysis {
 
   @@index([userId])
   @@index([createdAt])
+}
+
+// Cached Weather Suggestion - Store AI-generated outfit suggestions per user
+model CachedWeatherSuggestion {
+  id          String   @id @default(uuid())
+  userId      String   @unique // One cached suggestion per user
+  location    String   // City/location used for the suggestion
+  weatherData Json     // Weather data at time of generation
+  suggestion  Json     // AI-generated suggestion content
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Cached Trip Packing - Store AI-generated packing suggestions per user
+model CachedTripPacking {
+  id           String   @id @default(uuid())
+  userId       String   @unique // One cached packing list per user
+  destination  String
+  startDate    DateTime
+  endDate      DateTime
+  activities   String[]
+  tripType     String   // vacation, business, etc.
+  packingList  Json     // AI-generated packing list
+  tripData     Json     // Full trip data for display
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

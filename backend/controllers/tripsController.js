@@ -127,8 +127,7 @@ const generateTripList = async (req, res) => {
   } catch (error) {
     console.error('Generate trip error:', error);
     res.status(500).json({
-      message: 'שגיאה ביצירת רשימת האריזה.',
-      error: error.message
+      message: 'שגיאה ביצירת רשימת האריזה.'
     });
   }
 };
@@ -153,8 +152,7 @@ const getMyTrips = async (req, res) => {
   } catch (error) {
     console.error('Get trips error:', error);
     res.status(500).json({
-      message: 'שגיאה בטעינת הטיולים.',
-      error: error.message
+      message: 'שגיאה בטעינת הטיולים.'
     });
   }
 };
@@ -188,8 +186,7 @@ const getTripById = async (req, res) => {
   } catch (error) {
     console.error('Get trip error:', error);
     res.status(500).json({
-      message: 'שגיאה בטעינת הטיול.',
-      error: error.message
+      message: 'שגיאה בטעינת הטיול.'
     });
   }
 };
@@ -231,8 +228,7 @@ const updatePackingItem = async (req, res) => {
   } catch (error) {
     console.error('Update packing item error:', error);
     res.status(500).json({
-      message: 'שגיאה בעדכון הפריט.',
-      error: error.message
+      message: 'שגיאה בעדכון הפריט.'
     });
   }
 };
@@ -271,9 +267,95 @@ const deleteTrip = async (req, res) => {
   } catch (error) {
     console.error('Delete trip error:', error);
     res.status(500).json({
-      message: 'שגיאה במחיקת הטיול.',
-      error: error.message
+      message: 'שגיאה במחיקת הטיול.'
     });
+  }
+};
+
+/**
+ * GET /api/trips/cached-packing
+ * Get cached trip packing list for the user
+ */
+const getCachedPacking = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const cached = await prisma.cachedTripPacking.findUnique({
+      where: { userId }
+    });
+
+    if (!cached) {
+      return res.status(200).json({ cached: null });
+    }
+
+    res.status(200).json({ cached });
+  } catch (error) {
+    console.error('Get cached packing error:', error);
+    res.status(500).json({ message: 'שגיאה בטעינת רשימת האריזה השמורה.' });
+  }
+};
+
+/**
+ * POST /api/trips/cached-packing
+ * Save cached trip packing list (replaces existing)
+ */
+const saveCachedPacking = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { destination, startDate, endDate, activities, tripType, packingList, tripData } = req.body;
+
+    if (!destination || !packingList) {
+      return res.status(400).json({ message: 'חסרים נתונים לשמירה.' });
+    }
+
+    // Upsert: update if exists, create if not
+    const cached = await prisma.cachedTripPacking.upsert({
+      where: { userId },
+      update: {
+        destination,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        activities: activities || [],
+        tripType: tripType || 'vacation',
+        packingList,
+        tripData: tripData || {},
+        createdAt: new Date()
+      },
+      create: {
+        userId,
+        destination,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        activities: activities || [],
+        tripType: tripType || 'vacation',
+        packingList,
+        tripData: tripData || {}
+      }
+    });
+
+    res.status(200).json({ message: 'רשימת האריזה נשמרה בהצלחה!', cached });
+  } catch (error) {
+    console.error('Save cached packing error:', error);
+    res.status(500).json({ message: 'שגיאה בשמירת רשימת האריזה.' });
+  }
+};
+
+/**
+ * DELETE /api/trips/cached-packing
+ * Delete cached trip packing list
+ */
+const deleteCachedPacking = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    await prisma.cachedTripPacking.deleteMany({
+      where: { userId }
+    });
+
+    res.status(200).json({ message: 'רשימת האריזה נמחקה בהצלחה.' });
+  } catch (error) {
+    console.error('Delete cached packing error:', error);
+    res.status(500).json({ message: 'שגיאה במחיקת רשימת האריזה.' });
   }
 };
 
@@ -282,5 +364,8 @@ module.exports = {
   getMyTrips,
   getTripById,
   updatePackingItem,
-  deleteTrip
+  deleteTrip,
+  getCachedPacking,
+  saveCachedPacking,
+  deleteCachedPacking
 };

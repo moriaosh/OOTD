@@ -42,7 +42,6 @@ export const clearSession = () => {
 export const startActivityMonitoring = () => {
   // Check inactivity immediately
   if (isInactive()) {
-    console.log('User has been inactive for > 1 hour. Auto-logging out...');
     clearSession();
     return;
   }
@@ -62,7 +61,6 @@ export const startActivityMonitoring = () => {
   // Check every minute if user should be logged out
   const checkInactivity = () => {
     if (isInactive()) {
-      console.log('Inactivity timeout reached. Logging out...');
       clearSession();
     }
   };
@@ -92,7 +90,6 @@ const resetTimeout = () => {
   }
 
   timeoutId = setTimeout(() => {
-    console.log('1 hour of inactivity. Auto-logging out...');
     clearSession();
   }, INACTIVITY_TIMEOUT);
 };

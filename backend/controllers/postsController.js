@@ -52,7 +52,7 @@ const createPost = async (req, res) => {
       imageUrl = cloudinaryResponse.secure_url;
     } catch (error) {
       console.error('CLOUDINARY UPLOAD ERROR:', error);
-      return res.status(500).json({ message: 'שגיאה בהעלאת התמונה.', error: error.message });
+      return res.status(500).json({ message: 'שגיאה בהעלאת התמונה.' });
     }
 
     // Create post in database
@@ -81,7 +81,7 @@ const createPost = async (req, res) => {
     });
   } catch (error) {
     console.error('CREATE POST ERROR:', error);
-    res.status(500).json({ message: 'שגיאה ביצירת הפרסום.', error: error.message });
+    res.status(500).json({ message: 'שגיאה ביצירת הפרסום.' });
   }
 };
 
@@ -119,7 +119,7 @@ const getFeed = async (req, res) => {
     res.status(200).json(posts);
   } catch (error) {
     console.error('GET FEED ERROR:', error);
-    res.status(500).json({ message: 'שגיאה בשליפת הפיד.', error: error.message });
+    res.status(500).json({ message: 'שגיאה בשליפת הפיד.' });
   }
 };
 
@@ -149,7 +149,7 @@ const getMyPosts = async (req, res) => {
     res.status(200).json(posts);
   } catch (error) {
     console.error('GET MY POSTS ERROR:', error);
-    res.status(500).json({ message: 'שגיאה בשליפת הפרסומים שלך.', error: error.message });
+    res.status(500).json({ message: 'שגיאה בשליפת הפרסומים שלך.' });
   }
 };
 
@@ -202,7 +202,7 @@ const updatePost = async (req, res) => {
     });
   } catch (error) {
     console.error('UPDATE POST ERROR:', error);
-    res.status(500).json({ message: 'שגיאה בעדכון הפרסום.', error: error.message });
+    res.status(500).json({ message: 'שגיאה בעדכון הפרסום.' });
   }
 };
 
@@ -233,7 +233,7 @@ const deletePost = async (req, res) => {
     res.status(200).json({ message: 'הפרסום נמחק בהצלחה!' });
   } catch (error) {
     console.error('DELETE POST ERROR:', error);
-    res.status(500).json({ message: 'שגיאה במחיקת הפרסום.', error: error.message });
+    res.status(500).json({ message: 'שגיאה במחיקת הפרסום.' });
   }
 };
 

@@ -50,7 +50,7 @@ const Closet = () => {
   const fetchTags = async () => {
     try {
       const token = localStorage.getItem('ootd_authToken');
-      const response = await fetch('http://localhost:5000/api/tags', {
+      const response = await fetch('/api/tags', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -106,7 +106,7 @@ const Closet = () => {
   const handleSaveEdit = async (itemId, formData) => {
     try {
       const token = localStorage.getItem('ootd_authToken');
-      const response = await fetch(`http://localhost:5000/api/closet/${itemId}`, {
+      const response = await fetch(`/api/closet/${itemId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -130,7 +130,7 @@ const Closet = () => {
    const handleDeleteItem = async (itemId) => {
     try {
       const token = localStorage.getItem('ootd_authToken');
-      const response = await fetch(`http://localhost:5000/api/closet/${itemId}`, {
+      const response = await fetch(`/api/closet/${itemId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -148,7 +148,7 @@ const Closet = () => {
    const handleToggleLaundry = async (itemId) => {
     try {
       const token = localStorage.getItem('ootd_authToken');
-      const response = await fetch(`http://localhost:5000/api/closet/${itemId}/laundry`, {
+      const response = await fetch(`/api/closet/${itemId}/laundry`, {
         method: 'PATCH',
         headers: { 'Authorization': `Bearer ${token}` }
       });

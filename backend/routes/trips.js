@@ -8,7 +8,10 @@ const {
   getMyTrips,
   getTripById,
   updatePackingItem,
-  deleteTrip
+  deleteTrip,
+  getCachedPacking,
+  saveCachedPacking,
+  deleteCachedPacking
 } = require('../controllers/tripsController');
 
 // All routes require authentication
@@ -17,15 +20,6 @@ router.use(verifyToken);
 /**
  * POST /api/trips/generate
  * Generate AI-powered packing list for a new trip
- *
- * Body:
- * {
- *   "destination": "Paris",
- *   "startDate": "2024-06-01",
- *   "endDate": "2024-06-07",
- *   "activities": ["Hiking", "Night Out", "Casual"],
- *   "packingStyle": "Standard"
- * }
  */
 router.post('/generate', generateTripList);
 
@@ -36,6 +30,13 @@ router.post('/generate', generateTripList);
 router.get('/my-trips', getMyTrips);
 
 /**
+ * Cached Packing List routes - MUST be before :tripId routes!
+ */
+router.get('/cached-packing', getCachedPacking);
+router.post('/cached-packing', saveCachedPacking);
+router.delete('/cached-packing', deleteCachedPacking);
+
+/**
  * GET /api/trips/:tripId
  * Get a specific trip with packing list
  */
@@ -44,12 +45,6 @@ router.get('/:tripId', getTripById);
 /**
  * PATCH /api/trips/:tripId/items/:itemId
  * Update packing item (mark as packed, change quantity)
- *
- * Body:
- * {
- *   "isPacked": true,
- *   "quantity": 2
- * }
  */
 router.patch('/:tripId/items/:itemId', updatePackingItem);
 

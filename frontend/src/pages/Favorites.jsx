@@ -12,7 +12,7 @@ const Favorites = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('ootd_authToken');
-      const response = await fetch('http://localhost:5000/api/outfits', {
+      const response = await fetch('/api/outfits', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -38,7 +38,7 @@ const Favorites = () => {
 
     try {
       const token = localStorage.getItem('ootd_authToken');
-      const response = await fetch(`http://localhost:5000/api/outfits/${outfitId}`, {
+      const response = await fetch(`/api/outfits/${outfitId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -56,7 +56,7 @@ const Favorites = () => {
   const handleToggleFavorite = async (outfitId) => {
     try {
       const token = localStorage.getItem('ootd_authToken');
-      const response = await fetch(`http://localhost:5000/api/outfits/${outfitId}/favorite`, {
+      const response = await fetch(`/api/outfits/${outfitId}/favorite`, {
         method: 'PATCH',
         headers: { 'Authorization': `Bearer ${token}` }
       });
