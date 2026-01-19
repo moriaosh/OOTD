@@ -495,6 +495,34 @@ const toggleLaundry = async (req, res) => {
     }
 };
 
+// --- 6b. Toggle Favorite Status ---
+const toggleFavorite = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { id } = req.params;
+
+        // Verify ownership
+        const item = await prisma.clothe.findUnique({ where: { id } });
+        if (!item || item.userId !== userId) {
+            return res.status(403).json({ message: 'לא מורשה לעדכן פריט זה.' });
+        }
+
+        // Toggle favorite status
+        const updatedItem = await prisma.clothe.update({
+            where: { id },
+            data: { isFavorite: !item.isFavorite }
+        });
+
+        res.status(200).json({
+            message: updatedItem.isFavorite ? 'הפריט נוסף למועדפים' : 'הפריט הוסר מהמועדפים',
+            item: updatedItem
+        });
+    } catch (error) {
+        console.error('Toggle favorite error:', error);
+        res.status(500).json({ message: 'שגיאה בעדכון סטטוס מועדפים.' });
+    }
+};
+
 // --- 7. Backup User Data ---
 const backupUserData = async (req, res) => {
     try {
@@ -831,6 +859,7 @@ module.exports = {
     updateItem,
     deleteItem,
     toggleLaundry,
+    toggleFavorite,
     backupUserData,
     bulkUploadItems,
     restoreUserData,

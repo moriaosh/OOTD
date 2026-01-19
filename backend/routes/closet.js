@@ -10,6 +10,7 @@ const {
     updateItem,
     deleteItem,
     toggleLaundry,
+    toggleFavorite,
     backupUserData,
     bulkUploadItems,
     restoreUserData,
@@ -36,6 +37,9 @@ router.delete('/:id', verifyToken, deleteItem);
 
 // PATCH /api/closet/:id/laundry - Toggle laundry status
 router.patch('/:id/laundry', verifyToken, toggleLaundry);
+
+// PATCH /api/closet/:id/favorite - Toggle favorite status
+router.patch('/:id/favorite', verifyToken, toggleFavorite);
 
 // GET /api/closet/backup - Download user data backup
 router.get('/backup', verifyToken, backupUserData);

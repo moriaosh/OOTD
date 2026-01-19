@@ -85,10 +85,34 @@ const analyzePurchase = async (req, res) => {
   } catch (error) {
     console.error('Purchase analysis error:', error);
 
-    // Handle specific errors with user-friendly messages (no internal details)
+    // Handle specific errors with user-friendly messages
+    if (error.message.includes('403 Forbidden') || error.message.includes('blocked by website')) {
+      return res.status(400).json({
+        message: 'האתר חוסם גישה לתמונה. נסי להעתיק את התמונה ולהעלות לשירות כמו Imgur.'
+      });
+    }
+
+    if (error.message.includes('404') || error.message.includes('not found')) {
+      return res.status(400).json({
+        message: 'התמונה לא נמצאה. ודאי שהקישור תקין.'
+      });
+    }
+
+    if (error.message.includes('timed out')) {
+      return res.status(400).json({
+        message: 'הורדת התמונה נכשלה (timeout). נסי קישור אחר או העלאה ישירה.'
+      });
+    }
+
     if (error.message.includes('Failed to fetch image')) {
       return res.status(400).json({
-        message: 'לא ניתן לטעון את התמונה. ודאי שהקישור תקין.'
+        message: 'לא ניתן לטעון את התמונה. ודאי שהקישור תקין ונגיש.'
+      });
+    }
+
+    if (error.message.includes('not a valid image') || error.message.includes('Invalid base64')) {
+      return res.status(400).json({
+        message: 'הקישור אינו מצביע על תמונה תקינה.'
       });
     }
 
@@ -98,8 +122,17 @@ const analyzePurchase = async (req, res) => {
       });
     }
 
+    if (error.message.includes('invalid response format') || error.message.includes('Failed to parse')) {
+      return res.status(500).json({
+        message: 'הבינה המלאכותית החזירה תשובה לא תקינה. נסי שוב.'
+      });
+    }
+
+    // Log the actual error for debugging
+    console.error('Unhandled purchase error:', error.message);
+
     res.status(500).json({
-      message: 'שגיאה בניתוח הקנייה.'
+      message: 'שגיאה בניתוח הקנייה. נסי שוב.'
     });
   }
 };

@@ -290,21 +290,64 @@ ${closetList}
     console.log('Analyzing purchase with Gemini Vision...');
     console.log('Image URL:', imageUrl);
 
-    // Fetch image and convert to base64
-    const imageResponse = await fetch(imageUrl);
-    if (!imageResponse.ok) {
-      throw new Error(`Failed to fetch image: ${imageResponse.status}`);
+    let base64Image, contentType;
+
+    // Check if imageUrl is already a base64 data URL
+    if (imageUrl.startsWith('data:image/')) {
+      // Extract base64 from data URL
+      const matches = imageUrl.match(/^data:([^;]+);base64,(.+)$/);
+      if (!matches) {
+        throw new Error('Invalid base64 image format');
+      }
+      contentType = matches[1];
+      base64Image = matches[2];
+      console.log('Using provided base64 image');
+    } else {
+      // Fetch image from URL with timeout
+      console.log('Fetching image from URL...');
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
+      try {
+        const imageResponse = await fetch(imageUrl, {
+          signal: controller.signal,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (compatible; OOTD-App/1.0)'
+          }
+        });
+        clearTimeout(timeoutId);
+
+        if (!imageResponse.ok) {
+          if (imageResponse.status === 403) {
+            throw new Error('Image blocked by website (403 Forbidden). Try copying the image and uploading directly.');
+          } else if (imageResponse.status === 404) {
+            throw new Error('Image not found (404). Check if the URL is correct.');
+          } else {
+            throw new Error(`Failed to fetch image: ${imageResponse.status}`);
+          }
+        }
+
+        const imageBuffer = await imageResponse.arrayBuffer();
+        base64Image = Buffer.from(imageBuffer).toString('base64');
+        contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
+
+        // Validate it's actually an image
+        if (!contentType.startsWith('image/')) {
+          throw new Error('URL does not point to a valid image');
+        }
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        if (fetchError.name === 'AbortError') {
+          throw new Error('Image download timed out. The URL may be too slow or blocked.');
+        }
+        throw fetchError;
+      }
     }
-
-    const imageBuffer = await imageResponse.arrayBuffer();
-    const base64Image = Buffer.from(imageBuffer).toString('base64');
-
-    // Determine image MIME type
-    const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
 
     // Call Gemini Vision API with image
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-lite', // Fastest model - best for high-frequency use
+      model: 'gemini-2.5-flash', // Using same model as other AI features
       contents: [
         {
           parts: [
@@ -330,23 +373,30 @@ ${closetList}
       throw new Error('No response from Gemini Vision API');
     }
 
-    console.log('AI Response (first 300 chars):', aiResponse.substring(0, 300));
+    console.log('AI Response (first 500 chars):', aiResponse.substring(0, 500));
 
     // Parse JSON response
     let jsonText = aiResponse.trim();
     jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
 
-    const result = JSON.parse(jsonText);
+    try {
+      const result = JSON.parse(jsonText);
 
-    return {
-      score: result.score || 5,
-      explanation: result.explanation || 'לא ניתן לנתח',
-      recommendations: result.recommendations || null,
-      warnings: result.warnings || null
-    };
+      return {
+        score: result.score || 5,
+        explanation: result.explanation || 'לא ניתן לנתח',
+        recommendations: result.recommendations || null,
+        warnings: result.warnings || null
+      };
+    } catch (parseError) {
+      console.error('Failed to parse Gemini response as JSON:', parseError);
+      console.error('Raw response:', aiResponse);
+      throw new Error('AI returned invalid response format. Please try again.');
+    }
 
   } catch (error) {
-    console.error('Purchase analysis error:', error);
+    console.error('Purchase analysis error:', error.message);
+    console.error('Full error:', error);
     throw error;
   }
 };

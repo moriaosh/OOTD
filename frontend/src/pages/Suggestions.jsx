@@ -96,7 +96,7 @@ const Suggestions = () => {
   const fetchCalendarRecommendation = async () => {
     try {
       const token = localStorage.getItem('ootd_authToken');
-      const response = await fetch('/api/calendar/recommendations', {
+      const response = await fetch('/api/calendar/recommend', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

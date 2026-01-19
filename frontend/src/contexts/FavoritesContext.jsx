@@ -1,6 +1,9 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const FavoritesContext = createContext();
+
+// Helper to get auth token
+const getAuthToken = () => localStorage.getItem('ootd_authToken');
 
 export const useFavorites = () => {
   const context = useContext(FavoritesContext);
@@ -11,42 +14,95 @@ export const useFavorites = () => {
 };
 
 export const FavoritesProvider = ({ children }) => {
-  const [favorites, setFavorites] = useState(() => {
-    // Load from localStorage on mount
+  const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Load favorites from API (items with isFavorite: true)
+  const loadFavorites = useCallback(async () => {
     try {
-      const saved = localStorage.getItem('ootd_favorite_items');
-      return saved ? JSON.parse(saved) : [];
+      const token = getAuthToken();
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch('/api/closet/my-items', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Extract IDs of items that are marked as favorite in the database
+        const favoriteIds = data.items
+          .filter(item => item.isFavorite)
+          .map(item => item.id);
+        setFavorites(favoriteIds);
+      }
     } catch (error) {
       console.error('Error loading favorites:', error);
-      return [];
+    } finally {
+      setLoading(false);
     }
-  });
+  }, []);
 
-  // Save to localStorage whenever favorites change
+  // Load favorites on mount
   useEffect(() => {
-    localStorage.setItem('ootd_favorite_items', JSON.stringify(favorites));
-  }, [favorites]);
+    loadFavorites();
+  }, [loadFavorites]);
 
-  const toggleFavorite = (itemId) => {
-    setFavorites((prev) => {
-      if (prev.includes(itemId)) {
-        // Remove from favorites
-        return prev.filter((id) => id !== itemId);
-      } else {
-        // Add to favorites
-        return [...prev, itemId];
+  const toggleFavorite = async (itemId) => {
+    try {
+      const token = getAuthToken();
+      if (!token) return;
+
+      // Optimistic update
+      setFavorites((prev) => {
+        if (prev.includes(itemId)) {
+          return prev.filter((id) => id !== itemId);
+        } else {
+          return [...prev, itemId];
+        }
+      });
+
+      // Call API to update database
+      const response = await fetch(`/api/closet/${itemId}/favorite`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        // Revert on failure
+        setFavorites((prev) => {
+          if (prev.includes(itemId)) {
+            return prev.filter((id) => id !== itemId);
+          } else {
+            return [...prev, itemId];
+          }
+        });
+        console.error('Failed to toggle favorite');
       }
-    });
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
   };
 
   const isFavorite = (itemId) => {
     return favorites.includes(itemId);
   };
 
+  // Refresh favorites (useful after login or data changes)
+  const refreshFavorites = () => {
+    loadFavorites();
+  };
+
   const value = {
     favorites,
     toggleFavorite,
     isFavorite,
+    refreshFavorites,
+    loading,
   };
 
   return (

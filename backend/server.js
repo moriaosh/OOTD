@@ -37,7 +37,7 @@ const aiLimiter = rateLimit({
 
 app.use('/api/closet/suggestions', aiLimiter);
 app.use('/api/purchase/analyze', aiLimiter);
-app.use('/api/calendar/recommendations', aiLimiter);
+app.use('/api/calendar/recommend', aiLimiter);
 app.use('/api/trips/generate', aiLimiter); // AI-powered packing list
 app.use('/api/color-analysis/analyze', aiLimiter); // AI-powered color analysis
 
@@ -85,7 +85,9 @@ app.use((req, res, next) => {
 /* ===============================
    Middlewares
 ================================ */
-app.use(express.json());
+// Increase body size limit for image uploads (base64 images can be large)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 /* ===============================
    Routes

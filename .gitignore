@@ -2,6 +2,7 @@ node_modules
 # Keep environment variables out of version control
 /backend/.env
 /generated/prisma
+C:\Users\Moria\Documents\OOTD\OOTD\.env
 
 # Logs
 *.log

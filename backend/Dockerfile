@@ -32,5 +32,5 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:5000/api/auth || exit 1
 
-# Start: wait for DB, run migrations, then start server
-CMD sh -c "echo 'Waiting for database...' && sleep 5 && npx prisma migrate deploy && npx prisma generate && npm start"
+# Start: wait for DB, run migrations, seed system tags, then start server
+CMD sh -c "echo 'Waiting for database...' && sleep 5 && npx prisma migrate deploy && npx prisma generate && echo 'Seeding system tags...' && node scripts/seedTags.js && npm start"

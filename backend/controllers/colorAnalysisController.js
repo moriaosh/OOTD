@@ -195,16 +195,10 @@ exports.getLatestAnalysis = async (req, res) => {
       orderBy: { createdAt: 'desc' }
     });
 
-    if (!analysis) {
-      return res.status(404).json({
-        success: false,
-        message: 'No analysis found'
-      });
-    }
-
+    // Return 200 with null if no analysis found (better for frontend handling)
     res.status(200).json({
       success: true,
-      analysis
+      analysis: analysis || null
     });
 
   } catch (error) {
